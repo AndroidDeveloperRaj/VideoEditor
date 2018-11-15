@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/fl_ad_native"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="@dimen/_8sdp"
+        app:layout_constraintBottom_toTopOf="@+id/view2"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/iv_bg"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingBottom="@dimen/_8sdp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/bg"
+        app:layout_constraintBottom_toTopOf="@+id/view2"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <LinearLayout
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        app:layout_constraintBottom_toTopOf="@+id/view">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/view_cutter"
+            style="@style/view_button_main">
+
+            <ImageView
+                android:id="@+id/iv_cutter"
+                style="@style/image_button_main"
+                android:src="@drawable/btn_cut"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_cutter"
+                style="@style/textview_button_main"
+                android:text="@string/cutter"
+                app:layout_constraintTop_toBottomOf="@+id/iv_cutter" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/view_speed"
+            style="@style/view_button_main">
+
+            <ImageView
+                android:id="@+id/iv_speed"
+                style="@style/image_button_main"
+                android:src="@drawable/btn_speed"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <TextView
+                style="@style/textview_button_main"
+                android:text="@string/speed"
+                app:layout_constraintTop_toBottomOf="@+id/iv_speed" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/view_merger"
+            style="@style/view_button_main">
+
+            <ImageView
+                android:id="@+id/iv_merger"
+                style="@style/image_button_main"
+                android:src="@drawable/btn_meger"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <TextView
+                style="@style/textview_button_main"
+                android:text="@string/merger"
+                app:layout_constraintTop_toBottomOf="@+id/iv_merger" />
+        </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_4sdp"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        app:layout_constraintBottom_toTopOf="@+id/fl_ad_banner">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/view_add_music"
+            style="@style/view_button_main">
+
+            <ImageView
+                android:id="@+id/iv_add_music"
+                style="@style/image_button_main"
+                android:src="@drawable/btn_add_ms"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <TextView
+                style="@style/textview_button_main"
+                android:text="@string/add_music"
+                app:layout_constraintTop_toBottomOf="@+id/iv_add_music" />
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/view_studio"
+            style="@style/view_button_main">
+
+            <ImageView
+                android:id="@+id/iv_studio"
+                style="@style/image_button_main"
+                android:src="@drawable/btn_studio"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <TextView
+                style="@style/textview_button_main"
+                android:text="@string/studio"
+                app:layout_constraintTop_toBottomOf="@+id/iv_studio" />
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/view_more_app"
+            style="@style/view_button_main">
+
+            <ImageView
+                android:id="@+id/iv_more_app"
+                style="@style/image_button_main"
+                android:src="@drawable/btn_more"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <TextView
+                style="@style/textview_button_main"
+                android:text="@string/more_app"
+                app:layout_constraintTop_toBottomOf="@+id/iv_more_app" />
+        </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/fl_ad_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/view_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/fl_ad_banner"
+        app:layout_constraintTop_toTopOf="parent" />
+</android.support.constraint.ConstraintLayout>

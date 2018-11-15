@@ -1,0 +1,22 @@
+<resources>
+    <string name="admod_banner_id">@string/lib_crs_admob_banner_id</string>
+    <string name="admod_native_id">@string/lib_crs_admob_native_id</string>
+    <string name="admod_full_id">@string/lib_crs_admob_full_id</string>
+
+    <string name="app_name">Video Editor</string>
+    <string name="cutter">Cutter</string>
+    <string name="studio">Studio</string>
+    <string name="add_music">Add Music</string>
+    <string name="merger">Merger</string>
+    <string name="speed">Speed</string>
+    <string name="more_app">More App</string>
+    <string name="no_video">Don\'t have any video!</string>
+    <string name="ok">Ok</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="name_file_can_not_empty">File name can not empty!</string>
+    <string name="name_file_can_not_contain_character">Please don\'t input special character!</string>
+    <string name="progress_dialog_saving">Saving...</string>
+    <string name="create_file">Create file:</string>
+
+</resources>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="@dimen/_14sdp">
+
+    <TextView
+        android:id="@+id/ss"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/_7sdp"
+        android:layout_marginStart="@dimen/_7sdp"
+        android:text="@string/save"
+
+        android:textColor="@color/colorAccent"
+        android:textSize="@dimen/_14ssp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <EditText
+        android:id="@+id/edt_name_file"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/_7sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:focusable="true"
+        android:maxLines="3"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ss" />
+
+    <TextView
+        android:id="@+id/btn_local_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_7sdp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:paddingBottom="@dimen/_7sdp"
+        android:paddingLeft="@dimen/_14ssp"
+        android:paddingRight="@dimen/_14ssp"
+        android:paddingTop="@dimen/_7sdp"
+        android:text="@string/ok"
+        android:textAllCaps="true"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edt_name_file"
+        tools:ignore="RtlHardcoded" />
+
+    <TextView
+        android:id="@+id/btn_local_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/_8sdp"
+        android:layout_marginTop="@dimen/_7sdp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center"
+        android:padding="@dimen/_7sdp"
+        android:text="@string/cancel"
+        android:textAllCaps="true"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintRight_toLeftOf="@+id/btn_local_ok"
+        app:layout_constraintTop_toBottomOf="@+id/edt_name_file"
+        tools:ignore="RtlHardcoded" />
+</android.support.constraint.ConstraintLayout>
