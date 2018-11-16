@@ -19,6 +19,7 @@
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@color/colorPrimary"
         android:layout_above="@+id/tabLayout"
         android:layout_below="@+id/toolbar"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,12 +29,12 @@
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2e2f3d"
+        android:background="@color/colorPrimaryDark"
         app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:tabGravity="fill"
         app:tabIndicatorColor="@color/colorAccent"
         app:tabMaxWidth="0dp"
         app:tabMode="scrollable"
-        app:tabSelectedTextColor="@color/white"
-        app:tabTextColor="@color/high_light" />
+        app:tabSelectedTextColor="@color/colorAccent"
+        app:tabTextColor="@color/white" />
 </android.support.constraint.ConstraintLayout>

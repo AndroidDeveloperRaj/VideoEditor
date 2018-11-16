@@ -43,10 +43,8 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     @Override
     public void initViews() {
 
-        checkAction = getArguments().getInt(Statistic.ACTION);
-
         videoModelList = new ArrayList<>();
-        videoAdapter = new VideoAdapter(videoModelList, this, getContext());
+        videoAdapter = new VideoAdapter(videoModelList, this, getContext(),false);
 
         tvNoVideo = (TextView) findViewById(R.id.tv_no_video);
         rvVideo = (RecyclerView) findViewById(R.id.recycle_view);
@@ -60,6 +58,8 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     @Override
     public void initToolbar() {
         super.initToolbar();
+
+        checkAction = getArguments().getInt(Statistic.ACTION,0);
 
         listTitle = new String[]{getString(R.string.cutter),
                 getString(R.string.speed),

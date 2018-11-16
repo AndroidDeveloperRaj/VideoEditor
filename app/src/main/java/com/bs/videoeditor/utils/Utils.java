@@ -2,6 +2,7 @@ package com.bs.videoeditor.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.FragmentManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -9,6 +10,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
 import android.view.inputmethod.InputMethodManager;
 
 import com.bs.videoeditor.model.VideoModel;
@@ -44,6 +46,7 @@ public class Utils {
         }
         return filteredModelList;
     }
+
 
     public static int getMediaDuration(String filePath) {
         MediaMetadataRetriever metaInfo = new MediaMetadataRetriever();
@@ -228,6 +231,86 @@ public class Utils {
             c.close();
         }
         return listVideo;
+    }
+
+    public static List<VideoModel> getStudioVideos(Context context, String section) {
+        Uri uri = android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+        Uri ART_CONTENT_URI = Uri.parse("content://media/external/audio/albumart");
+        List<VideoModel> listVideo = new ArrayList<>();
+        String[] m_data = {MediaStore.Audio.Media._ID,
+                MediaStore.Video.Media.TITLE,
+                MediaStore.Video.Media.ARTIST,
+                MediaStore.Video.Media.ALBUM,
+                MediaStore.Video.Media.DURATION,
+                MediaStore.Video.Media.DATA,
+                MediaStore.Video.Media.RESOLUTION,
+                MediaStore.Video.Media.SIZE
+        };
+
+        Cursor c = context.getContentResolver().query(uri, m_data, null, null, MediaStore.Video.Media.DATE_ADDED + " DESC ");
+
+        if (c != null && c.moveToNext()) {
+            do {
+                String name, album, artist, path, id, duration, resolution;
+                long size;
+
+                id = c.getString(c.getColumnIndex(MediaStore.Video.Media._ID));
+                name = c.getString(c.getColumnIndex(MediaStore.Video.Media.TITLE));
+                album = c.getString(c.getColumnIndex(MediaStore.Video.Media.ALBUM));
+                artist = c.getString(c.getColumnIndex(MediaStore.Video.Media.ARTIST));
+                path = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATA));
+                duration = c.getString(c.getColumnIndex(MediaStore.Video.Media.DURATION));
+                resolution = c.getString(c.getColumnIndex(MediaStore.Video.Media.RESOLUTION));
+                size = c.getLong(c.getColumnIndex(MediaStore.Video.Media.SIZE));
+                try {
+                    if (duration != null && path != null && path.contains(section)) {
+                        VideoModel video = new VideoModel(id, name, artist, album, String.valueOf(duration), path, resolution, size);
+                        listVideo.add(video);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } while (c.moveToNext());
+        }
+        if (c != null) {
+            c.close();
+        }
+        return listVideo;
+    }
+
+    public static void clearFragment(android.support.v4.app.FragmentManager fragmentManager){
+        //Here we are clearing back stack fragment entries
+
+        if (fragmentManager == null) {
+            return;
+        }
+
+        int backStackEntry = fragmentManager.getBackStackEntryCount();
+        if (backStackEntry > 0) {
+            for (int i = 0; i < backStackEntry; i++) {
+                try {
+                    fragmentManager.popBackStackImmediate();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                    return;
+                }
+            }
+        } else {
+            return;
+        }
+
+        //Here we are removing all the fragment that are shown here
+        if (fragmentManager.getFragments() != null && fragmentManager.getFragments().size() > 0) {
+            for (int i = 0; i < fragmentManager.getFragments().size(); i++) {
+                Fragment mFragment = fragmentManager.getFragments().get(i);
+                if (mFragment != null) {
+                    fragmentManager.beginTransaction().remove(mFragment).commit();
+                }
+            }
+        } else {
+            return;
+        }
     }
 
     public static boolean isStringHasCharacterSpecial(String text) {

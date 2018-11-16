@@ -16,6 +16,7 @@ import com.bs.videoeditor.utils.Utils;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,12 +27,21 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
     private List<VideoModel> videoModelList;
     private ItemSelected callback;
     private Context context;
+    private boolean isStudio;
 
-    public VideoAdapter(List<VideoModel> videoModels, ItemSelected callback, Context context) {
+    public VideoAdapter(List<VideoModel> videoModels, ItemSelected callback, Context context, boolean isStudio) {
         this.videoModelList = videoModels;
         this.callback = callback;
         this.context = context;
+        this.isStudio = isStudio;
     }
+
+    public void setFilter(List<VideoModel> list) {
+        videoModelList = new ArrayList<>();
+        videoModelList = list;
+        notifyDataSetChanged();
+    }
+
 
     @NonNull
     @Override
@@ -47,6 +57,12 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         holder.tvName.setText(videoModel.getNameAudio());
         holder.tvTime.setText(Utils.convertMillisecond(Long.parseLong(videoModel.getDuration())));
         Glide.with(context).load(Uri.fromFile(new File(videoModel.getPath()))).into(holder.ivThumb);
+
+        if (isStudio) {
+            holder.ivMore.setVisibility(View.VISIBLE);
+        } else {
+            holder.ivMore.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -56,14 +72,14 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tvName, tvTime;
-        private ImageView ivThumb;
+        private ImageView ivThumb, ivMore;
 
         public ViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tv_name);
             tvTime = itemView.findViewById(R.id.tv_time);
             ivThumb = itemView.findViewById(R.id.iv_thumb);
-
+            ivMore = itemView.findViewById(R.id.iv_more);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

@@ -3,8 +3,9 @@ package com.bs.videoeditor.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
-public class VideoModel implements Parcelable {
+public class VideoModel implements Parcelable, Comparable<VideoModel> {
 
     public static final Creator<VideoModel> CREATOR = new Creator<VideoModel>() {
         @Override
@@ -129,5 +130,10 @@ public class VideoModel implements Parcelable {
         dest.writeString(path);
         dest.writeString(relution);
         dest.writeLong(size);
+    }
+
+    @Override
+    public int compareTo(@NonNull VideoModel videoModel) {
+        return this.getNameAudio().compareTo(videoModel.getNameAudio());
     }
 }

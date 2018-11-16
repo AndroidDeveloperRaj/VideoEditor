@@ -18,5 +18,15 @@
     <string name="name_file_can_not_contain_character">Please don\'t input special character!</string>
     <string name="progress_dialog_saving">Saving...</string>
     <string name="create_file">Create file:</string>
+    <string name="select_file">Select videos</string>
+    <string name="search">Search</string>
+    <string name="please_choose_file">Please choose files you want to merger!</string>
+    <string name="you_need_to_have">You need to have more than 2 video to merger!</string>
+    <string name="sort">Sort</string>
+    <string name="file">File name exist, please try again!</string>
+    <string name="support_mp4">Only support mp4 format</string>
+    <string name="error">Error</string>
+    <string name="yes">Yes</string>
+    <string name="name_file_exist">File name is exist!</string>
 
 </resources>
