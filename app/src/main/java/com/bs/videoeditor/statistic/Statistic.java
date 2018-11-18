@@ -33,4 +33,5 @@ public class Statistic {
     public static final String OPEN_MERGER_STUDIO ="open_merger_studio" ;
     public static final String OPEN_SPEED_STUDIO ="open_speed_studio" ;
     public static final String OPEN_ADD_MUSIC_STUDIO ="open_music_studio" ;
+    public static final String UPDATE_DELETE_RECORD = "update_delete_video";
 }

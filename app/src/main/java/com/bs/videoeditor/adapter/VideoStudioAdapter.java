@@ -25,13 +25,13 @@ import java.util.List;
  * Created by Hung on 11/15/2018.
  */
 
-public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> {
+public class VideoStudioAdapter extends RecyclerView.Adapter<VideoStudioAdapter.ViewHolder> {
     private List<VideoModel> videoModelList;
-    private ItemSelected callback;
-    private Context context;
+    private ItemSelectedStudio callback;
+    private StudioFragmentDetail context;
     private boolean isStudio;
 
-    public VideoAdapter(List<VideoModel> videoModels, ItemSelected callback, Context context, boolean isStudio) {
+    public VideoStudioAdapter(List<VideoModel> videoModels, ItemSelectedStudio callback, StudioFragmentDetail context, boolean isStudio) {
         this.videoModelList = videoModels;
         this.callback = callback;
         this.context = context;
@@ -58,12 +58,19 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         VideoModel videoModel = videoModelList.get(position);
         holder.tvName.setText(videoModel.getNameAudio());
         holder.tvTime.setText(Utils.convertMillisecond(Long.parseLong(videoModel.getDuration())));
+        holder.checkBox.setChecked(videoModelList.get(position).isCheck());
         Glide.with(context).load(Uri.fromFile(new File(videoModel.getPath()))).into(holder.ivThumb);
 
-        if (isStudio) {
-            holder.ivMore.setVisibility(View.VISIBLE);
-        } else {
+        // action mode
+        if (context.isActionMode) {
+            if (context.isSelectAll) {
+                holder.checkBox.setChecked(videoModelList.get(position).isCheck());
+            }
+            holder.checkBox.setVisibility(View.VISIBLE);
             holder.ivMore.setVisibility(View.GONE);
+        } else {
+            holder.checkBox.setVisibility(View.GONE);
+            holder.ivMore.setVisibility(View.VISIBLE);
         }
     }
 
@@ -83,8 +90,30 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
             tvTime = itemView.findViewById(R.id.tv_time);
             ivThumb = itemView.findViewById(R.id.iv_thumb);
             ivMore = itemView.findViewById(R.id.iv_more);
+            checkBox = itemView.findViewById(R.id.checkbox);
 
-            itemView.setOnClickListener(v -> callback.onClick(getAdapterPosition()));
+            itemView.setOnClickListener(v -> {
+                if (context.isActionMode) {
+
+                    VideoModel videoModel = videoModelList.get(getAdapterPosition());
+
+                    context.isSelectAll = false;
+
+                    if (videoModel.isCheck()) {
+                        videoModel.setCheck(false);
+                        checkBox.setChecked(videoModel.isCheck());
+                    } else {
+                        videoModel.setCheck(true);
+                        checkBox.setChecked(videoModel.isCheck());
+                    }
+
+                    context.prepareSelection(checkBox, getAdapterPosition());
+
+                } else {
+                    callback.onClick(getAdapterPosition());
+                }
+                context.isSelectAll = false;
+            });
 
             itemView.setOnLongClickListener(v -> callback.onLongClick(getAdapterPosition()));
 
@@ -92,7 +121,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         }
     }
 
-    public interface ItemSelected {
+    public interface ItemSelectedStudio {
         void onClick(int index);
 
         boolean onLongClick(int index);

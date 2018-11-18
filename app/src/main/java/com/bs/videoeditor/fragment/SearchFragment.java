@@ -122,6 +122,16 @@ public class SearchFragment extends AbsFragment implements VideoAdapter.ItemSele
 
     }
 
+    @Override
+    public boolean onLongClick(int index) {
+        return false;
+    }
+
+    @Override
+    public void onOptionClick(int index) {
+
+    }
+
 
     @Override
     public void onDestroy() {

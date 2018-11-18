@@ -108,6 +108,16 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
         addFragment(checkAction, index);
     }
 
+    @Override
+    public boolean onLongClick(int index) {
+        return false;
+    }
+
+    @Override
+    public void onOptionClick(int index) {
+
+    }
+
 
     private void addFragment(int action, int indexVideo) {
         AbsFragment absFragment = null;

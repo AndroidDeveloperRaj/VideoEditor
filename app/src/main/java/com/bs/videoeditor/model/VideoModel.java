@@ -27,6 +27,16 @@ public class VideoModel implements Parcelable, Comparable<VideoModel> {
     private String path;
     private String relution;
     private long size;
+    private boolean isCheck;
+
+
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean check) {
+        isCheck = check;
+    }
 
     public VideoModel(String id, String nameAudio, String nameArtist, String nameAbum, String duration, String path, String relution, long size) {
         this.id = id;
@@ -48,6 +58,7 @@ public class VideoModel implements Parcelable, Comparable<VideoModel> {
         path = in.readString();
         relution = in.readString();
         size = in.readLong();
+        isCheck = in.readByte() != 0;
     }
 
 
@@ -130,6 +141,7 @@ public class VideoModel implements Parcelable, Comparable<VideoModel> {
         dest.writeString(path);
         dest.writeString(relution);
         dest.writeLong(size);
+        dest.writeByte((byte) (isCheck ? 1 : 0));
     }
 
     @Override
