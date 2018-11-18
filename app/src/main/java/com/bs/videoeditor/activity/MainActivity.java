@@ -1,8 +1,11 @@
 package com.bs.videoeditor.activity;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.bs.videoeditor.R;
+import com.bs.videoeditor.fragment.DetailsSelectFileFragment;
 import com.bs.videoeditor.fragment.ListVideoFragment;
 import com.bs.videoeditor.fragment.StudioFragment;
 import com.bs.videoeditor.statistic.Statistic;
@@ -36,6 +40,32 @@ public class MainActivity extends AbsActivity {
     private AdmobFullHelper admobFullHelper;
     private ImageView ivBg;
     private FrameLayout viewAds;
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null || intent.getAction() == null) {
+                return;
+            }
+
+            switch (intent.getAction()) {
+                case Statistic.OPEN_CUTTER_STUDIO:
+                    addFragmentStudio(INDEX_CUTTER);
+                    break;
+
+                case Statistic.OPEN_MERGER_STUDIO:
+                    addFragmentStudio(INDEX_MERGER);
+                    break;
+
+                case Statistic.OPEN_SPEED_STUDIO:
+                    addFragmentStudio(INDEX_SPEED);
+                    break;
+
+                case Statistic.OPEN_ADD_MUSIC_STUDIO:
+                    addFragmentStudio(INDEX_ADD_MUSIC);
+                    break;
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +83,25 @@ public class MainActivity extends AbsActivity {
             dialogExitApp = new DialogExitApp(this, getString(R.string.admod_native_id), true, () -> finish());
         }
 
+        initActions();
         initView();
         loadAdsBanner();
         loadAdsNative();
+    }
+
+    private void initActions() {
+        IntentFilter it = new IntentFilter();
+        it.addAction(Statistic.OPEN_CUTTER_STUDIO);
+        it.addAction(Statistic.OPEN_MERGER_STUDIO);
+        it.addAction(Statistic.OPEN_SPEED_STUDIO);
+        it.addAction(Statistic.OPEN_ADD_MUSIC_STUDIO);
+        registerReceiver(receiver, it);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(receiver);
     }
 
     private void loadAdsBanner() {
@@ -111,24 +157,28 @@ public class MainActivity extends AbsActivity {
     }
 
     private void initView() {
-        ivBg = (ImageView) findViewById(R.id.iv_bg);
+        ivBg = findViewById(R.id.iv_bg);
         viewAds = findViewById(R.id.fl_ad_banner);
 
         findViewById(R.id.iv_cutter).setOnClickListener(view -> addFragmentListVideo(INDEX_CUTTER));
         findViewById(R.id.iv_speed).setOnClickListener(view -> addFragmentListVideo(INDEX_SPEED));
-        findViewById(R.id.iv_merger).setOnClickListener(view -> addFragmentListVideo(INDEX_MERGER));
+        findViewById(R.id.iv_merger).setOnClickListener(view -> addFragmentMerger());
         findViewById(R.id.iv_add_music).setOnClickListener(view -> addFragmentListVideo(INDEX_ADD_MUSIC));
-        findViewById(R.id.iv_studio).setOnClickListener(view -> addFragmentStudio());
+        findViewById(R.id.iv_studio).setOnClickListener(view -> addFragmentStudio(0));
         findViewById(R.id.iv_more_app).setOnClickListener(view -> moreApp());
     }
 
-    private void addFragmentStudio() {
+
+    private void addFragmentStudio(int indexFragmentOpen) {
+        Bundle bundle = new Bundle();
+        bundle.putInt(Statistic.CHECK_OPEN_STUDIO, Statistic.FROM_MAIN);
+        bundle.putInt(Statistic.OPEN_FRAGMENT, indexFragmentOpen);
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.animation_left_to_right
                         , R.anim.animation_right_to_left
                         , R.anim.animation_left_to_right
                         , R.anim.animation_right_to_left)
-                .add(R.id.view_container, StudioFragment.newInstance())
+                .add(R.id.view_container, StudioFragment.newInstance(bundle))
                 .addToBackStack(null)
                 .commit();
     }
@@ -146,6 +196,17 @@ public class MainActivity extends AbsActivity {
                         , R.anim.animation_left_to_right
                         , R.anim.animation_right_to_left)
                 .add(R.id.view_container, ListVideoFragment.newInstance(bundle))
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void addFragmentMerger() {
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.animation_left_to_right
+                        , R.anim.animation_right_to_left
+                        , R.anim.animation_left_to_right
+                        , R.anim.animation_right_to_left)
+                .add(R.id.view_container, DetailsSelectFileFragment.newInstance())
                 .addToBackStack(null)
                 .commit();
     }

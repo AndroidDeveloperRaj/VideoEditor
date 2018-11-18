@@ -12,7 +12,8 @@ import com.bs.videoeditor.R;
 
 public abstract class AbsFragment extends Fragment {
     private Context mContext = null;
-    private Toolbar toolbar;
+    private Toolbar toolbar = null;
+    private boolean isPauseFragment = false;
 
     @Override
     public void onAttach(Context context) {
@@ -20,12 +21,25 @@ public abstract class AbsFragment extends Fragment {
         mContext = context;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        isPauseFragment = true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        isPauseFragment = false;
+    }
+
+    public boolean isPauseFragment() {
+        return isPauseFragment;
+    }
 
     @Override
     public Context getContext() {
         if (mContext != null) return mContext;
-
-
         return super.getContext();
     }
 
@@ -39,15 +53,16 @@ public abstract class AbsFragment extends Fragment {
 
     public void initToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_back);
-        toolbar.setNavigationOnClickListener(view -> getFragmentManager().popBackStack());
-        toolbar.inflateMenu(R.menu.menu_save);
+        if (toolbar != null) {
+            toolbar.setNavigationIcon(R.drawable.ic_back);
+            toolbar.setNavigationOnClickListener(view -> getFragmentManager().popBackStack());
+            toolbar.inflateMenu(R.menu.menu_save);
+        }
     }
 
     public Toolbar getToolbar() {
         return toolbar;
     }
-
 
     public View findViewById(@IdRes int id) {
         return getView().findViewById(id);

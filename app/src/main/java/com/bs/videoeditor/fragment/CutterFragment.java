@@ -2,6 +2,7 @@ package com.bs.videoeditor.fragment;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bs.videoeditor.R;
+import com.bs.videoeditor.listener.IInputNameFile;
 import com.bs.videoeditor.model.VideoModel;
 import com.bs.videoeditor.statistic.Statistic;
 import com.bs.videoeditor.utils.FileUtil;
@@ -35,7 +37,7 @@ import java.util.Locale;
  * Created by Hung on 11/15/2018.
  */
 
-public class CutterFragment extends AbsFragment {
+public class CutterFragment extends AbsFragment implements IInputNameFile {
     private MyVideoView_Old videoView;
     private VideoTimelineView videoTimelineView;
     private VideoControllerView videoControllerView;
@@ -47,13 +49,14 @@ public class CutterFragment extends AbsFragment {
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
     private VideoModel videoModel;
     private ProgressDialog progressDialog;
-    private Boolean isSuccessCut = false;
+    private boolean isSuccessCut = false;
 
     public static CutterFragment newInstance(Bundle bundle) {
         CutterFragment fragment = new CutterFragment();
         fragment.setArguments(bundle);
         return fragment;
     }
+
 
     @Override
     public void initViews() {
@@ -78,11 +81,11 @@ public class CutterFragment extends AbsFragment {
         getToolbar().getMenu().findItem(R.id.item_save).setOnMenuItemClickListener(menuItem -> dialogSelectLocalSaveFile());
     }
 
-    private void save() {
+    private void save(String fileName) {
         String nameFile = null, extensionFile = null;
         int startTime = 0, endTime = 0, durationAudio = 0;
 
-        nameFile = edtNameFile.getText().toString().trim();
+        nameFile = fileName;
         extensionFile = Utils.getFileExtension(pathOldFile);
 
         if (FileUtil.isEmpty(nameFile)) {
@@ -95,7 +98,7 @@ public class CutterFragment extends AbsFragment {
             return;
         }
 
-        pathNewFile = Environment.getExternalStorageDirectory().getAbsolutePath() + Statistic.DIR_APP + "/";
+        pathNewFile = Environment.getExternalStorageDirectory().getAbsolutePath() + Statistic.DIR_APP + Statistic.DIR_CUTTER + "/";
 
         if (!new File(pathNewFile).exists()) {
             new File(pathNewFile).mkdirs();
@@ -115,20 +118,12 @@ public class CutterFragment extends AbsFragment {
 
     }
 
+    private DialogInputName dialogInputName;
+
     private boolean dialogSelectLocalSaveFile() {
-
-        pauseVideo();
-
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_save_file, null);
-
-        createDialog(view);
-
-        view.findViewById(R.id.btn_local_ok).setOnClickListener(v -> save());
-        view.findViewById(R.id.btn_local_cancel).setOnClickListener(v -> alertDialog.dismiss());
-
-        edtNameFile = view.findViewById(R.id.edt_name_file);
-        edtNameFile.setText("VC_" + simpleDateFormat.format(System.currentTimeMillis()));
-        edtNameFile.setSelection(edtNameFile.getText().length());
+        String defaultName = "VC_" + simpleDateFormat.format(System.currentTimeMillis());
+        dialogInputName = new DialogInputName(getContext(), this, defaultName);
+        dialogInputName.initDialog();
         return true;
     }
 
@@ -221,13 +216,13 @@ public class CutterFragment extends AbsFragment {
             ffmpeg.execute(command, new ExecuteBinaryResponseHandler() {
                 @Override
                 public void onFailure(String s) {
-                    Flog.e("Successs     "+ s);
+                    Flog.e("Successs     " + s);
                     isSuccessCut = false;
                 }
 
                 @Override
                 public void onSuccess(String s) {
-                    Flog.e("Failllllllll   "+ s);
+                    Flog.e("Failllllllll   " + s);
                     isSuccessCut = true;
                 }
 
@@ -249,11 +244,21 @@ public class CutterFragment extends AbsFragment {
                 @Override
                 public void onFinish() {
                     if (isSuccessCut) {
+                        progressDialog.setProgress(100);
+                        progressDialog.dismiss();
+
                         FileUtil.addFileToContentProvider(getContext(), path, title);
 
-                        progressDialog.setProgress(100);
-
                         Toast.makeText(getContext(), getString(R.string.create_file) + ": " + path, Toast.LENGTH_SHORT).show();
+
+                        if (isPauseFragment()) {
+                            return;
+                        }
+
+                        Utils.clearFragment(getFragmentManager());
+
+                        getContext().sendBroadcast(new Intent(Statistic.OPEN_CUTTER_STUDIO));
+
                     }
                 }
             });
@@ -281,5 +286,24 @@ public class CutterFragment extends AbsFragment {
     public void onPause() {
         super.onPause();
         pauseVideo();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onApplySelect(String nameFile) {
+        save(nameFile);
+    }
+
+    @Override
+    public void onCancelSelect() {
+        if (dialogInputName == null)
+            return;
+
+        dialogInputName.hideDialog();
     }
 }

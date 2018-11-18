@@ -15,6 +15,12 @@ import android.view.ViewGroup;
 import com.bs.videoeditor.R;
 import com.bs.videoeditor.adapter.StudioAdapter;
 import com.bs.videoeditor.statistic.Statistic;
+import com.bs.videoeditor.utils.Flog;
+
+import static com.bs.videoeditor.statistic.Statistic.INDEX_ADD_MUSIC;
+import static com.bs.videoeditor.statistic.Statistic.INDEX_CUTTER;
+import static com.bs.videoeditor.statistic.Statistic.INDEX_MERGER;
+import static com.bs.videoeditor.statistic.Statistic.INDEX_SPEED;
 
 public class StudioFragment extends AbsFragment {
     public static final int CUTTER = 0;
@@ -31,6 +37,8 @@ public class StudioFragment extends AbsFragment {
 
 
     private void addTabFragment() {
+
+        OPEN_FRAGMENT = getArguments().getInt(Statistic.OPEN_FRAGMENT,0);
 
         studioAdapter = new StudioAdapter(getChildFragmentManager());
 
@@ -60,29 +68,21 @@ public class StudioFragment extends AbsFragment {
 
             }
         });
+        Flog.e(" open nnnnn "+ OPEN_FRAGMENT);
+        if (OPEN_FRAGMENT == INDEX_CUTTER) {
+            viewPager.setCurrentItem(INDEX_CUTTER);
 
+        } else if (OPEN_FRAGMENT == INDEX_SPEED) {
+            viewPager.setCurrentItem(INDEX_SPEED);
 
-//        if (CHECK_STATE_ADD == Keys.FROM_RECORDER) {
-//            viewPager.setCurrentItem(AUDIO_RECORDER);
-//            viewPager.setOffscreenPageLimit(3);
-//            return;
-//        }
-//
-//        if (OPEN_FRAGMENT == AUDIO_MERGER) {
-//
-//            viewPager.setCurrentItem(AUDIO_MERGER);
-//            viewPager.setOffscreenPageLimit(3);
-//
-//        } else if (OPEN_FRAGMENT == AUDIO_CONVERTER) {
-//
-//            viewPager.setCurrentItem(AUDIO_CONVERTER);
-//            viewPager.setOffscreenPageLimit(3);
-//
-//        } else {
-//
-//            viewPager.setCurrentItem(AUDIO_CUTTER);
-//            viewPager.setOffscreenPageLimit(3);
-//        }
+        } else if (OPEN_FRAGMENT == INDEX_ADD_MUSIC) {
+            viewPager.setCurrentItem(INDEX_ADD_MUSIC);
+
+        } else {
+            viewPager.setCurrentItem(INDEX_MERGER);
+        }
+
+        viewPager.setOffscreenPageLimit(3);
     }
 
     @Nullable
@@ -99,9 +99,9 @@ public class StudioFragment extends AbsFragment {
         addTabFragment();
     }
 
-    public static StudioFragment newInstance() {
+    public static StudioFragment newInstance(Bundle bundle   ) {
         StudioFragment fragment = new StudioFragment();
-        //fragment.setArguments(bundle);
+        fragment.setArguments(bundle);
         return fragment;
     }
 }
