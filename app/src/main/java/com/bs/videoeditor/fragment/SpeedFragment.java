@@ -308,6 +308,16 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
     }
 
     @Override
+    public void onFileNameEmpty() {
+        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFileNameHasSpecialCharacter() {
+        Toast.makeText(getContext(), getString(R.string.name_file_can_not_contain_character), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public void onProgressChanged(com.bs.videoeditor.custom.BubbleSeekBar bubbleSeekBar, int progress, float progressFloat, boolean fromUser) {
         tvShowSpeed.setText(listTempoAudio[progress - 1] + "x");
         tempoVideo = listTempoAudio[progress - 1];

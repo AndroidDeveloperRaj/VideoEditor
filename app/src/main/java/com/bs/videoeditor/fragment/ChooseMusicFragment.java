@@ -144,16 +144,42 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     }
 
 
-    public void playMusic(int pos, boolean isClick) {
+    public void playMusic(int pos, boolean isClick, boolean isFistPlay) {
+
+        if (isFistPlay) {
+            selectedSong = musicModelList.get(pos);
+            mFilename = selectedSong.getFilePath();
+            tvNameSong.setText(selectedSong.getTitle());
+            rangeSeekbar.setRangeValues(0, Integer.parseInt(String.valueOf(selectedSong.getDuration())));
+            rangeSeekbar.setSelectedMinValue(0);
+            rangeSeekbar.setSelectedMaxValue(Integer.parseInt(String.valueOf(selectedSong.getDuration())));
+            rangeSeekbar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {
+                if (mediaPlayer != null) {
+                    stopMedia();
+                }
+            });
+
+            ivPlay.setImageResource(R.drawable.ic_pause_black_24dp);
+
+            mediaPlayer = new MediaPlayer();
+
+            try {
+                mediaPlayer.setDataSource(selectedSong.getFilePath());
+                mediaPlayer.prepare();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
+            mediaPlayer.seekTo((Integer) rangeSeekbar.getSelectedMinValue());
+            return;
+        }
+
+
         position = pos;
 
         if (position > musicModelList.size() - 1) {
             position = musicModelList.size() - 1;
-        }
-
-        if (false) {
-            Flog.e("xxxxxxx   " + pos);
-            return;
         }
 
         selectedSong = musicModelList.get(position);
@@ -183,6 +209,14 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
         if (!isClick) {
             if (!isPlaying) {
                 if (mediaPlayer == null) {
+//                    rangeSeekbar.setRangeValues(0, Integer.parseInt(String.valueOf(selectedSong.getDuration())));
+//                    rangeSeekbar.setSelectedMinValue(0);
+//                    rangeSeekbar.setSelectedMaxValue(Integer.parseInt(String.valueOf(selectedSong.getDuration())));
+                    rangeSeekbar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {
+                        if (mediaPlayer != null) {
+                            stopMedia();
+                        }
+                    });
 
                     int timeStart = Integer.parseInt(rangeSeekbar.getSelectedMinValue() + "");
                     int timeEnd = Integer.parseInt(rangeSeekbar.getSelectedMaxValue() + "");
@@ -194,26 +228,19 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
 
                     if (timePlay > 0) {
                         try {
-
                             ivPlay.setImageResource(R.drawable.ic_pause_black_24dp);
                             mediaPlayer = new MediaPlayer();
                             mediaPlayer.setDataSource(selectedSong.getFilePath());
                             mediaPlayer.prepare();
 
-                            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                                @Override
-                                public void onPrepared(MediaPlayer mp) {
-                                    mediaPlayer.start();
-                                }
-                            });
-
+                            mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
                             mediaPlayer.seekTo((Integer) rangeSeekbar.getSelectedMinValue());
 
                         } catch (IOException e) {
                             if (position < musicModelList.size() - 1) {
                                 position++;
                             }
-                            playMusic(position, true);
+                            playMusic(position, true, false);
                         }
                         isPlaying = true;
                     } else {
@@ -245,7 +272,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
                 if (position < musicModelList.size() - 1) {
                     position++;
                 }
-                playMusic(position, true);
+                playMusic(position, true, false);
             }
 
             isPlaying = true;
@@ -306,7 +333,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
 
     @Override
     public void onClick(int index) {
-        playMusic(index, true);
+        playMusic(index, true, false);
     }
 
     private boolean isExistSong() {
@@ -375,7 +402,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
                 @Override
                 public void onSuccess(String s) {
                     isSuccess = true;
-                    Flog.e( "Success " + s);
+                    Flog.e("Success " + s);
                 }
 
                 @Override
@@ -403,18 +430,28 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
         }
     }
 
+    private boolean isFistPlay = true; // fisrt play audio
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_play:
                 if (isExistSong()) {
-                    if (isOnPause) {
-                        playMusic(position, true);
-                    } else {
-                        playMusic(position, false);
+
+                    if (isFistPlay) {
+                        isFistPlay = false;
+                        playMusic(position, true, true);
+                        return;
                     }
+
+                    if (isOnPause) {
+                        playMusic(position, true, false);
+                    } else {
+                        playMusic(position, false, false);
+                    }
+
                 }
+
                 break;
 
             case R.id.iv_next:
@@ -422,7 +459,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
                     if (position < musicModelList.size() - 1) {
                         position++;
                     }
-                    playMusic(position, true);
+                    playMusic(position, true, false);
                 }
                 break;
 
@@ -431,7 +468,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
                     if (position > 0) {
                         position--;
                     }
-                    playMusic(position, true);
+                    playMusic(position, true, false);
                 }
                 break;
         }

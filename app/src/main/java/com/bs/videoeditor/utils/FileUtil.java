@@ -17,6 +17,10 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.provider.DocumentFile;
+import android.widget.Toast;
+
+import com.bs.videoeditor.R;
+import com.bs.videoeditor.model.VideoModel;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -73,6 +77,28 @@ public final class FileUtil {
             path = new File(path, "Camera/");
         }
         return path.getAbsolutePath();
+    }
+
+
+    public static void renameContentProvider(String newName, String tailFile, VideoModel audioEntity, Context context) {
+        ContentResolver contentResolver = context.getContentResolver();
+        Cursor cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, null, MediaStore.Video.Media.DATA + " = ?", new String[]{audioEntity.getPath()}, null);
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Video.Media.TITLE, newName);
+        values.put(MediaStore.Video.Media.DATA, audioEntity.getPath().replace(new File(audioEntity.getPath()).getName(), "") + newName + tailFile);
+        Flog.e("xxxx      " + audioEntity.getPath().replace(new File(audioEntity.getPath()).getName(), "") + newName + tailFile);
+        File f = new File(audioEntity.getPath());
+
+        try {
+            int result = contentResolver.update(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values, MediaStore.Video.Media.DATA + " = ?", new String[]{f.getAbsolutePath()});
+
+        } catch (Exception e) {
+            Toast.makeText(context, context.getString(R.string.fail_rename), Toast.LENGTH_SHORT).show();
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
     }
 
     /**
@@ -187,6 +213,19 @@ public final class FileUtil {
         }
 
         return !file.exists();
+    }
+
+    /**
+     * Delete a file in contenprovider
+     *
+     * @param context context to get content provider
+     * @param path    is path file to delete
+     */
+    public static void deleteAudio(Context context, String path) {
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri uri = MediaStore.Files.getContentUri("external");
+        int result = contentResolver.delete(uri,
+                MediaStore.Files.FileColumns.DATA + "=?", new String[]{path});
     }
 
     /**

@@ -14,8 +14,7 @@
         android:layout_marginLeft="@dimen/_8sdp"
         android:layout_marginStart="@dimen/_8sdp"
         android:text="@string/save"
-
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/black"
         android:textSize="@dimen/_14ssp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -6,9 +6,11 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.bs.videoeditor.R;
 import com.bs.videoeditor.listener.IInputNameFile;
+import com.bs.videoeditor.utils.Utils;
 
 /**
  * Created by Hung on 11/16/2018.
@@ -24,51 +26,50 @@ public class DialogInputName extends AbsDialog {
     private String nameDefault = null;
 
 
-    public DialogInputName(Context context,IInputNameFile callback, String nameDefault) {
+    public DialogInputName(Context context, IInputNameFile callback, String nameDefault) {
         super(context);
-        AbsDialog.class.getSuperclass();
         this.context = context;
         this.callback = callback;
         this.nameDefault = nameDefault;
     }
 
-    public void showDialog() {
-        if (alertDialog != null) {
-            alertDialog.show();
-        }
-    }
-
-    public void hideDialog() {
-        if (alertDialog != null) {
-            alertDialog.dismiss();
-        }
-    }
-
     @Override
     public int initLayout() {
-        return 0;
+        return R.layout.dialog_save_file;
     }
 
     public void initDialog() {
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_save_file, null);
-        builder = new AlertDialog.Builder(context);
-        builder.setView(view);
-        alertDialog = builder.create();
-        edtNameFile = view.findViewById(R.id.edt_name_file);
+        super.initDialog();
+        edtNameFile = getView().findViewById(R.id.edt_name_file);
         edtNameFile.setText(nameDefault);
         edtNameFile.setSelection(edtNameFile.getText().length());
-        view.findViewById(R.id.btn_local_ok).setOnClickListener(v -> applyInput());
-        view.findViewById(R.id.btn_local_cancel).setOnClickListener(v -> cancelInput());
-        alertDialog.show();
+        getView().findViewById(R.id.btn_local_ok).setOnClickListener(v -> applyInput());
+        getView().findViewById(R.id.btn_local_cancel).setOnClickListener(v -> cancelInput());
     }
 
     private void applyInput() {
-        callback.onApplySelect(edtNameFile.getText().toString().trim());
+
         hideDialog();
+
+        String nameFile = edtNameFile.getText().toString().trim();
+
+        if (nameFile.isEmpty()) {
+            callback.onFileNameEmpty();
+            return;
+        }
+
+        if (Utils.isStringHasCharacterSpecial(nameFile)) {
+            callback.onFileNameHasSpecialCharacter();
+            return;
+        }
+
+        callback.onApplySelect(edtNameFile.getText().toString().trim());
+
     }
 
     private void cancelInput() {
         callback.onCancelSelect();
-        hideDialog();
     }
+
+
 }
