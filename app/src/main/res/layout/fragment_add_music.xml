@@ -122,6 +122,7 @@
         app:layout_constraintTop_toTopOf="@+id/view" />
 
     <ImageView
+        android:id="@+id/iv_add_music"
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
         android:layout_marginRight="@dimen/_8sdp"

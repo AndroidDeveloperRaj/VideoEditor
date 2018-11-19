@@ -178,7 +178,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         videoModelList.clear();
         videoModelList.addAll(listAllVideo);
 
-        Collections.reverse(videoModelList);
+        //Collections.reverse(videoModelList);
 
         videoAdapter.notifyDataSetChanged();
 
@@ -246,7 +246,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         videoModelList.clear();
         videoModelList.addAll(listAllVideo);
 
-        Collections.reverse(videoModelList);
+        //Collections.reverse(videoModelList);
 
         videoAdapter = new VideoStudioAdapter(videoModelList, this, this, true);
 

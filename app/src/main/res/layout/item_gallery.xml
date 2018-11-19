@@ -13,10 +13,25 @@
         android:padding="@dimen/_8sdp">
 
         <android.support.v7.widget.AppCompatImageView
-            android:id="@+id/avatar"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
+            android:id="@+id/iv_default"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:background="@color/colorAccent"
             android:scaleType="centerCrop" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/avatar"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:scaleType="centerCrop" />
+
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/iv_play"
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:padding="@dimen/_7sdp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_play_arrow_black_24dp" />
     </FrameLayout>
 
     <FrameLayout

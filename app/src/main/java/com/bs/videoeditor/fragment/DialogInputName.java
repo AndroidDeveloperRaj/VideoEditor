@@ -14,7 +14,7 @@ import com.bs.videoeditor.listener.IInputNameFile;
  * Created by Hung on 11/16/2018.
  */
 
-public class DialogInputName {
+public class DialogInputName extends AbsDialog {
     private IInputNameFile callback;
     private AlertDialog.Builder builder;
     private AlertDialog alertDialog;
@@ -23,7 +23,10 @@ public class DialogInputName {
     private EditText edtNameFile;
     private String nameDefault = null;
 
-    public DialogInputName(Context context, IInputNameFile callback, String nameDefault) {
+
+    public DialogInputName(Context context,IInputNameFile callback, String nameDefault) {
+        super(context);
+        AbsDialog.class.getSuperclass();
         this.context = context;
         this.callback = callback;
         this.nameDefault = nameDefault;
@@ -39,6 +42,11 @@ public class DialogInputName {
         if (alertDialog != null) {
             alertDialog.dismiss();
         }
+    }
+
+    @Override
+    public int initLayout() {
+        return 0;
     }
 
     public void initDialog() {

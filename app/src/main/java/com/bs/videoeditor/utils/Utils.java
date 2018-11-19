@@ -2,8 +2,8 @@ package com.bs.videoeditor.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.FragmentManager;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.view.inputmethod.InputMethodManager;
 
+import com.bs.videoeditor.model.MusicModel;
 import com.bs.videoeditor.model.VideoModel;
 
 import java.io.File;
@@ -45,6 +46,59 @@ public class Utils {
             }
         }
         return filteredModelList;
+    }
+
+
+    public static List<MusicModel> getMusicFiles(Context context) {
+        List<MusicModel> musicModelList = new ArrayList();
+        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Uri ART_CONTENT_URI = Uri.parse("content://media/external/audio/albumart");
+        String[] m_data = {MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST,
+                MediaStore.Audio.Media.ALBUM,
+                MediaStore.Audio.Media.DURATION,
+                MediaStore.Audio.Media.DATA,
+                MediaStore.Audio.Media.ALBUM_ID,
+                MediaStore.Audio.Media.DATE_MODIFIED
+        };
+
+        Cursor c = context.getContentResolver().query(uri, m_data, android.provider.MediaStore.Audio.Media.IS_MUSIC + "=1", null, android.provider.MediaStore.Audio.Media.TITLE + " ASC");
+
+        if (c != null && c.moveToNext()) {
+            do {
+                String name, album, artist, path, id, audioType, dateModifier;
+                String duration;
+                int albumId, artistId;
+
+
+                id = c.getString(c.getColumnIndex(MediaStore.Audio.Media._ID));
+                name = c.getString(c.getColumnIndex(MediaStore.Audio.Media.TITLE));
+                album = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+                artist = c.getString(c.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+                path = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
+                duration = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DURATION));
+                albumId = c.getInt(c.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+                dateModifier = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED));
+                String imagePath = ContentUris.withAppendedId(ART_CONTENT_URI, albumId).toString();
+
+                MusicModel audio = new MusicModel(id, name, path, Long.parseLong(duration));
+
+                try {
+                    if (duration != null && Long.parseLong(duration) > 0 && path != null && !path.contains(".flac")) {
+                        musicModelList.add(audio);
+                    }
+                } catch (NumberFormatException ex) {
+                    ex.printStackTrace();
+                }
+
+            } while (c.moveToNext());
+        }
+
+        if (c != null) {
+            c.close();
+        }
+        return musicModelList;
     }
 
 
@@ -279,7 +333,7 @@ public class Utils {
         return listVideo;
     }
 
-    public static void clearFragment(android.support.v4.app.FragmentManager fragmentManager){
+    public static void clearFragment(android.support.v4.app.FragmentManager fragmentManager) {
         //Here we are clearing back stack fragment entries
 
         if (fragmentManager == null) {

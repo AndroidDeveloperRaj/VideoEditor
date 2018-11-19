@@ -1,5 +1,9 @@
 package com.bs.videoeditor.statistic;
 
+import android.os.Environment;
+
+import java.io.File;
+
 /**
  * Created by Hung on 11/15/2018.
  */
@@ -30,8 +34,40 @@ public class Statistic {
     public static final String UPDATE_CHOOSE_VIDEO = "update_choose_video";
     public static final String MODEL = "model";
     public static final String EXTENSION_MP4 = ".mp4";
-    public static final String OPEN_MERGER_STUDIO ="open_merger_studio" ;
-    public static final String OPEN_SPEED_STUDIO ="open_speed_studio" ;
-    public static final String OPEN_ADD_MUSIC_STUDIO ="open_music_studio" ;
+    public static final String OPEN_MERGER_STUDIO = "open_merger_studio";
+    public static final String OPEN_SPEED_STUDIO = "open_speed_studio";
+    public static final String OPEN_ADD_MUSIC_STUDIO = "open_music_studio";
     public static final String UPDATE_DELETE_RECORD = "update_delete_video";
+    public static final String MUSIC ="music" ;
+    public static final String SEND_PATH_ADD_MUSIC ="send_path_add_music" ;
+    public static final String PATH_MUSIC ="path_music" ;
+    public static File mSdCard = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
+    public static File APP_DIRECTORY = new File(mSdCard, "BVideoEditor");
+    public static final File TEMP_DIRECTORY = new File(APP_DIRECTORY, ".temp");
+    public static final File TEMP_DIRECTORY_AUDIO = new File(APP_DIRECTORY, ".temp_audio");
+    public static long mDeleteFileCount = 0;
+
+    public static boolean deleteFile(File mFile) {
+        boolean idDelete = false;
+        if (mFile == null) {
+//            return 0;
+        }
+        if (mFile.exists()) {
+            if (mFile.isDirectory()) {
+                File[] children = mFile.listFiles();
+                if (children != null && children.length > 0) {
+                    for (File child : children) {
+                        mDeleteFileCount += child.length();
+                        idDelete = deleteFile(child);
+                    }
+                }
+                mDeleteFileCount += mFile.length();
+                idDelete = mFile.delete();
+            } else {
+                mDeleteFileCount += mFile.length();
+                idDelete = mFile.delete();
+            }
+        }
+        return idDelete;
+    }
 }

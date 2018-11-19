@@ -44,7 +44,7 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     public void initViews() {
 
         videoModelList = new ArrayList<>();
-        videoAdapter = new VideoAdapter(videoModelList, this, getContext(),false);
+        videoAdapter = new VideoAdapter(videoModelList, this, getContext(), false);
 
         tvNoVideo = (TextView) findViewById(R.id.tv_no_video);
         rvVideo = (RecyclerView) findViewById(R.id.recycle_view);
@@ -59,7 +59,7 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     public void initToolbar() {
         super.initToolbar();
 
-        checkAction = getArguments().getInt(Statistic.ACTION,0);
+        checkAction = getArguments().getInt(Statistic.ACTION, 0);
 
         listTitle = new String[]{getString(R.string.cutter),
                 getString(R.string.speed),
@@ -93,7 +93,7 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
                 isHasVideo();
                 videoAdapter.notifyDataSetChanged();
             }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }.execute();
     }
 
     @Nullable
@@ -124,7 +124,7 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
         Bundle bundle = new Bundle();
         bundle.putInt(Statistic.ACTION, action);
         bundle.putString(Statistic.PATH_VIDEO, videoModelList.get(indexVideo).getPath());
-        bundle.putParcelable(Statistic.VIDEO_MODEL,videoModelList.get(indexVideo));
+        bundle.putParcelable(Statistic.VIDEO_MODEL, videoModelList.get(indexVideo));
         Flog.e("pathhhh   " + videoModelList.get(indexVideo).getPath());
 
         switch (action) {
