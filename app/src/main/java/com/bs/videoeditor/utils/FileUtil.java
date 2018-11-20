@@ -20,6 +20,7 @@ import android.support.v4.provider.DocumentFile;
 import android.widget.Toast;
 
 import com.bs.videoeditor.R;
+import com.bs.videoeditor.application.MyApplication;
 import com.bs.videoeditor.model.VideoModel;
 
 import java.io.File;

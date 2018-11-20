@@ -12,6 +12,8 @@ import android.provider.MediaStore;
 import android.provider.MediaStore.MediaColumns;
 import android.support.annotation.NonNull;
 
+import com.bs.videoeditor.application.MyApplication;
+
 import java.io.File;
 
 

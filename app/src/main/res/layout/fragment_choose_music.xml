@@ -31,6 +31,17 @@
         app:layout_constraintBottom_toTopOf="@+id/lnView"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
+    <TextView
+        android:id="@+id/tv_no_audio"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/no_audio"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/lnView"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/lnView"
         android:layout_width="match_parent"

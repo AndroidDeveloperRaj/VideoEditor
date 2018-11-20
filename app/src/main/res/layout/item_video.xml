@@ -100,7 +100,6 @@
                 android:layout_height="@dimen/_24sdp"
                 android:layout_marginRight="@dimen/_8sdp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="@dimen/_2sdp"
                 android:src="@drawable/ic_more_vert_black_24dp" />
 
             <CheckBox

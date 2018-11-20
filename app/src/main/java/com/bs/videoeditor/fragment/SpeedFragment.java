@@ -52,8 +52,8 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
     private BetterVideoPlayer bvp;
     private com.bs.videoeditor.custom.BubbleSeekBar seekBar;
     private float tempoVideo = 1.0f, ptsVideo = 1.0f;
-    private float listTempoAudio[] = new float[]{ 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f};
-    private float listPtsVideo[] = new float[]{ 2.0f, 4 / 3f, 1.0f, 4 / 5f, 4 / 6f, 4 / 7f, 0.5f};
+    private float listTempoAudio[] = new float[]{0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f};
+    private float listPtsVideo[] = new float[]{2.0f, 4 / 3f, 1.0f, 4 / 5f, 4 / 6f, 4 / 7f, 0.5f};
 
     @Override
     public void initViews() {
@@ -79,6 +79,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
                 .build();
 
         videoModel = getArguments().getParcelable(Statistic.VIDEO_MODEL);
+
         Uri uri = Uri.fromFile(new File(videoModel.getPath()));
 
         bvp = (BetterVideoPlayer) findViewById(R.id.bvp);
@@ -88,56 +89,32 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         bvp.setBottomProgressBarVisibility(false);
         bvp.enableSwipeGestures(getActivity().getWindow());
 
-        bvp.setCallback(new BetterVideoCallback() {
-            @Override
-            public void onStarted(BetterVideoPlayer player) {
-                //Log.i(TAG, "Started");
-            }
+    }
 
-            @Override
-            public void onPaused(BetterVideoPlayer player) {
-                //Log.i(TAG, "Paused");
-            }
+    @Override
+    public void onPause() {
+        super.onPause();
+        pauseVideo();
+    }
 
-            @Override
-            public void onPreparing(BetterVideoPlayer player) {
-                //Log.i(TAG, "Preparing");
-            }
-
-            @Override
-            public void onPrepared(BetterVideoPlayer player) {
-                //Log.i(TAG, "Prepared");
-            }
-
-            @Override
-            public void onBuffering(int percent) {
-                //Log.i(TAG, "Buffering " + percent);
-            }
-
-            @Override
-            public void onError(BetterVideoPlayer player, Exception e) {
-                //Log.i(TAG, "Error " +e.getMessage());
-            }
-
-            @Override
-            public void onCompletion(BetterVideoPlayer player) {
-                //Log.i(TAG, "Completed");
-            }
-
-            @Override
-            public void onToggleControls(BetterVideoPlayer player, boolean isShowing) {
-
-            }
-        });
-//        String[] complexCommand = {"-y", "-i", oldPath, "-filter_complex", "[0:v]setpts=2.0*PTS[v];[0:a]atempo=0.5[a]", "-map", "[v]", "-map", "[a]", "-b:v", "2097k", "-r", "60", "-vcodec", "mpeg4", newPath};
-
+    private void pauseVideo() {
+        if (bvp != null) {
+            bvp.pause();
+        }
     }
 
     private boolean dialogLocalSave() {
+
+        pauseVideo();
+
         String defaultName = "VS_" + simpleDateFormat.format(System.currentTimeMillis());
+
         dialogInputName = new DialogInputName(getContext(), this, defaultName);
+
         dialogInputName.initDialog();
+
         return true;
+
     }
 
     public static SpeedFragment newInstance(Bundle bundle) {
@@ -193,25 +170,20 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
         newPath = newPath + nameFile + extensionFile;
 
-        Flog.e(" ppppppppppp   " + newPath);
-
         if (new File(newPath).exists()) {
             dialogInputName.hideDialog();
             Toast.makeText(getContext(), getString(R.string.name_file_exist), Toast.LENGTH_SHORT).show();
             return;
         }
-//
-//        if (true) {
-//
-//            Log.e("xxx ", " pts     " + ptsVideo + "___" + tempoVideo);
-////            return;
-//        }
 
         String sSpeed = "[0:v]setpts=" + ptsVideo + "*PTS[v];[0:a]atempo=" + tempoVideo + "[a]";
-//        String[] complexCommand = {"-y", "-i", yourRealPath, "-filter_complex", "[0:v]setpts=0.5*PTS[v];[0:a]atempo=2.0[a]", "-map", "[v]", "-map", "[a]", "-b:v", "2097k", "-r", "60", "-vcodec", "mpeg4", filePath};
+
         String[] complexCommand = {"-i", videoModel.getPath(), "-filter_complex", sSpeed, "-map", "[v]", "-map", "[a]", "-b:v", "2097k", "-r", "60", "-vcodec", "mpeg4", newPath};
+
         initDialogProgress();
+
         execFFmpegBinary(complexCommand, newPath, nameFile);
+
     }
 
     private void initDialogProgress() {
@@ -262,7 +234,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
                     double percent = durationFile / (Double.parseDouble(videoModel.getDuration()) / 1000);
                     Log.e("xxx", " durrrrrr  " + durationFile + "___" + percent * 100);
                     if (progressDialog != null) {
-                        if ((int)(percent * 100) > 0) {
+                        if ((int) (percent * 100) > 0) {
                             progressDialog.setProgress((int) (percent * 100));
                         }
                     }

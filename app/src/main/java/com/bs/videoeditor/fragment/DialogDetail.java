@@ -12,6 +12,7 @@ import com.bs.videoeditor.R;
 public class DialogDetail extends AbsDialog {
     public DialogDetail(Context context) {
         super(context);
+        initDialog();
     }
 
     @Override

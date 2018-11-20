@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bvp="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    android:configChanges="orientation|keyboardHidden|screenLayout|screenSize">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:minHeight="?attr/actionBarSize"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+
+    <com.halilibo.bettervideoplayer.BetterVideoPlayer
+        android:id="@+id/bvp"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_200sdp"
+        android:layout_below="@+id/toolbar"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        bvp:bvp_autoPlay="true"
+        bvp:bvp_captionColor="@android:color/holo_blue_light"
+        bvp:bvp_captionSize="20sp"
+        bvp:bvp_hideControlsOnPlay="true"
+        bvp:bvp_loadingStyle="RotatingPlane"
+        bvp:bvp_showBottomProgressBar="true"
+        bvp:bvp_showTotalDuration="false" />
+
+    <FrameLayout
+        android:id="@+id/fl_ad_native"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/bvp"
+        android:layout_alignParentBottom="true"
+        android:padding="@dimen/_8sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bvp">
+
+    </FrameLayout>
+
+</android.support.constraint.ConstraintLayout>

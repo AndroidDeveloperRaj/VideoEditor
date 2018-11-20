@@ -63,6 +63,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
     private MainActivity mainActivity;
     private int indexOption = 0;
     private ActionMode actionMode = null;
+    private BottomSheetDialog bottomSheetDialog;
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -85,6 +86,11 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
 
         }
     };
+
+    public void beginSearch(String s) {
+        videoModelList = Utils.filterVideoModel(listAllVideo, s);
+        videoAdapter.setFilter(videoModelList);
+    }
 
 
     public static StudioFragmentDetail newInstance(Bundle bundle) {
@@ -318,22 +324,16 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
 
     @Override
     public void onClick(int index) {
-
+        indexOption = index;
+        playVideo();
     }
-
-    private boolean isStartCreateActionMode = false;
 
     @Override
     public boolean onLongClick(int index) {
-        if (actionMode == null) {
-            createAction();
-            videoModelList.get(index).setCheck(true);
-            videoAdapter.notifyDataSetChanged();
-            updateCountItemSelected();
-            return true;
-        }
-
-        return false;
+        createAction();
+        videoModelList.get(index).setCheck(true);
+        videoAdapter.notifyDataSetChanged();
+        return true;
     }
 
     @Override
@@ -341,8 +341,6 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         indexOption = index;
         showBottomSheet(indexOption);
     }
-
-    private BottomSheetDialog bottomSheetDialog;
 
     private void showBottomSheet(int index) {
 
@@ -356,14 +354,30 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         view.findViewById(R.id.btn_delete).setOnClickListener(v -> deleteVideo());
         view.findViewById(R.id.btn_detail).setOnClickListener(v -> detailVideo());
         view.findViewById(R.id.btn_rename).setOnClickListener(v -> renameVideo());
-        view.findViewById(R.id.btn_open_file).setOnClickListener(v -> openVideo());
+        view.findViewById(R.id.btn_open_file).setOnClickListener(v -> openVideoWith());
 
         bottomSheetDialog = new BottomSheetDialog(getContext());
         bottomSheetDialog.setContentView(view);
         bottomSheetDialog.show();
     }
 
-    private void openVideo() {
+    private void playVideo() {
+
+        Bundle bundle = new Bundle();
+
+        bundle.putParcelable(Statistic.VIDEO_MODEL, videoModelList.get(indexOption));
+
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.animation_left_to_right
+                        , R.anim.animation_right_to_left
+                        , R.anim.animation_left_to_right
+                        , R.anim.animation_right_to_left)
+                .add(R.id.view_container1, PlayVideoFragment.newInstance(bundle))
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void openVideoWith() {
         Uri uri;
 
         VideoModel videoModel = videoModelList.get(indexOption);
@@ -384,7 +398,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
 
         startActivity(intent);
 
-
+        hideBottomSheetDialog();
     }
 
     private void hideBottomSheetDialog() {
@@ -397,6 +411,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
 
     private void renameVideo() {
         dialogInputName = new DialogInputName(getContext(), this, "");
+        dialogInputName.initDialog();
         hideBottomSheetDialog();
     }
 

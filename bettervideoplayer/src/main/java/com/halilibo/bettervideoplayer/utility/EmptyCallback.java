@@ -5,6 +5,11 @@ import com.halilibo.bettervideoplayer.BetterVideoPlayer;
 
 public class EmptyCallback implements BetterVideoCallback {
     @Override
+    public void onStop(BetterVideoPlayer player) {
+
+    }
+
+    @Override
     public void onStarted(BetterVideoPlayer player) {
 
     }

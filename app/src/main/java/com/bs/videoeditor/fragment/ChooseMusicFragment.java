@@ -50,7 +50,6 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     private MusicAdapter musicAdapter;
     private RecyclerView rvAudio;
 
-    boolean isPlaying = false;
     int durationAudio;
     private MusicAdapter adapter;
     private File mFile;
@@ -78,6 +77,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     private AdView mAdView;
     private boolean isOnPause = false;
     private Handler handler;
+    private TextView tvNoAudio;
 
     public static ChooseMusicFragment newInstance() {
         Bundle args = new Bundle();
@@ -88,14 +88,19 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
 
     @Override
     public void initViews() {
+
         ffmpeg = FFmpeg.getInstance(getContext());
+
         musicModelList = Utils.getMusicFiles(getContext());
+
         musicAdapter = new MusicAdapter(getContext(), musicModelList, this);
+
         rvAudio = (RecyclerView) findViewById(R.id.rvMusicList);
         rvAudio.setHasFixedSize(true);
         rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
         rvAudio.setAdapter(musicAdapter);
 
+        tvNoAudio = (TextView) findViewById(R.id.tv_no_audio);
         ivNext = (ImageView) findViewById(R.id.iv_next);
         ivPrevious = (ImageView) findViewById(R.id.iv_previous);
         ivPlay = (ImageView) findViewById(R.id.iv_play);
@@ -105,8 +110,23 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
 
         ivNext.setOnClickListener(this);
         ivPlay.setOnClickListener(this);
-        tvAddMusic.setOnClickListener(this);
+//        tvAddMusic.setOnClickListener(this);
         ivPrevious.setOnClickListener(this);
+
+        hasAudio();
+
+    }
+
+    private void hasAudio() {
+        if (musicModelList == null) {
+            return;
+        }
+
+        if (musicModelList.size() > 0) {
+            tvNoAudio.setVisibility(View.GONE);
+        } else {
+            tvNoAudio.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -133,149 +153,117 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     @Override
     public void onPause() {
         super.onPause();
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.pause();
-                isPlaying = false;
-                ivPlay.setImageResource(R.drawable.ic_play_arrow_black_24dp);
-                isOnPause = true;
-            }
-        }
+        pauseMediaPlayer();
     }
 
 
-    public void playMusic(int pos, boolean isClick, boolean isFistPlay) {
+    private int STATE_STOP = 0;
+    private int STATE_PLAYING = 1;
+    private int STATE_PAUSE = 2;
+    private int STATE_PLAY_MUSIC = STATE_STOP;
 
-        if (isFistPlay) {
-            selectedSong = musicModelList.get(pos);
+    public void playMusic(int index) {
+
+        if (STATE_PLAY_MUSIC == STATE_PLAYING) {
+            pauseMediaPlayer();
+
+        } else if (STATE_PLAY_MUSIC == STATE_PAUSE) {
+            startMediaPlayer();
+        } else {
+            position = index;
+            if (position > musicModelList.size() - 1) {
+                position = musicModelList.size() - 1;
+            }
+
+            selectedSong = musicModelList.get(position);
+
             mFilename = selectedSong.getFilePath();
             tvNameSong.setText(selectedSong.getTitle());
+
             rangeSeekbar.setRangeValues(0, Integer.parseInt(String.valueOf(selectedSong.getDuration())));
             rangeSeekbar.setSelectedMinValue(0);
             rangeSeekbar.setSelectedMaxValue(Integer.parseInt(String.valueOf(selectedSong.getDuration())));
-            rangeSeekbar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {
-                if (mediaPlayer != null) {
-                    stopMedia();
-                }
-            });
+            rangeSeekbar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> pauseMediaPlayer());
 
-            ivPlay.setImageResource(R.drawable.ic_pause_black_24dp);
+            stopMedia();
+            playAudio();
+        }
+    }
 
-            mediaPlayer = new MediaPlayer();
-
-            try {
-                mediaPlayer.setDataSource(selectedSong.getFilePath());
-                mediaPlayer.prepare();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
-            mediaPlayer.seekTo((Integer) rangeSeekbar.getSelectedMinValue());
+    private void pauseMediaPlayer() {
+        if (mediaPlayer == null) {
             return;
         }
 
+        mediaPlayer.pause();
 
-        position = pos;
+        ivPlay.setImageResource(R.drawable.ic_play_arrow_black_24dp);
 
-        if (position > musicModelList.size() - 1) {
-            position = musicModelList.size() - 1;
-        }
+        STATE_PLAY_MUSIC = STATE_PAUSE;
 
-        selectedSong = musicModelList.get(position);
-
-        mFilename = selectedSong.getFilePath();
-        tvNameSong.setText(selectedSong.getTitle());
-
-        if (isClick) {
-            rangeSeekbar.setRangeValues(0, Integer.parseInt(String.valueOf(selectedSong.getDuration())));
-            rangeSeekbar.setSelectedMinValue(0);
-            rangeSeekbar.setSelectedMaxValue(Integer.parseInt(String.valueOf(selectedSong.getDuration())));
-            rangeSeekbar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {
-                if (mediaPlayer != null) {
-                    stopMedia();
-                }
-            });
-
-            if (mediaPlayer != null) {
-                stopMedia();
-            }
-        }
-
-        playAudio(isClick);
     }
 
-    private void playAudio(boolean isClick) {
-        if (!isClick) {
-            if (!isPlaying) {
-                if (mediaPlayer == null) {
-//                    rangeSeekbar.setRangeValues(0, Integer.parseInt(String.valueOf(selectedSong.getDuration())));
-//                    rangeSeekbar.setSelectedMinValue(0);
-//                    rangeSeekbar.setSelectedMaxValue(Integer.parseInt(String.valueOf(selectedSong.getDuration())));
-                    rangeSeekbar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {
-                        if (mediaPlayer != null) {
-                            stopMedia();
-                        }
-                    });
+    private void startMediaPlayer() {
 
-                    int timeStart = Integer.parseInt(rangeSeekbar.getSelectedMinValue() + "");
-                    int timeEnd = Integer.parseInt(rangeSeekbar.getSelectedMaxValue() + "");
+        if (mediaPlayer == null) {
+            return;
+        }
 
-                    timeStart = timeStart / 1000;
-                    timeEnd = timeEnd / 1000;
+        mediaPlayer.start();
 
-                    int timePlay = timeEnd - timeStart;
+        if (mediaPlayer.getCurrentPosition() < (Integer) rangeSeekbar.getSelectedMinValue()) {
+            mediaPlayer.seekTo((Integer) rangeSeekbar.getSelectedMinValue());
+        }
 
-                    if (timePlay > 0) {
-                        try {
-                            ivPlay.setImageResource(R.drawable.ic_pause_black_24dp);
-                            mediaPlayer = new MediaPlayer();
-                            mediaPlayer.setDataSource(selectedSong.getFilePath());
-                            mediaPlayer.prepare();
+        if (isMaxRangerSeekbar) {
+            isMaxRangerSeekbar = false;
+            mediaPlayer.seekTo((Integer) rangeSeekbar.getSelectedMinValue());
+        }
 
-                            mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
-                            mediaPlayer.seekTo((Integer) rangeSeekbar.getSelectedMinValue());
+        ivPlay.setImageResource(R.drawable.ic_pause_black_24dp);
 
-                        } catch (IOException e) {
-                            if (position < musicModelList.size() - 1) {
-                                position++;
-                            }
-                            playMusic(position, true, false);
-                        }
-                        isPlaying = true;
-                    } else {
-                        Toast.makeText(getContext(), getString(R.string.time_fail), Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    isPlaying = true;
-                    resumePlaying();
-                }
-            } else {
-                isPlaying = false;
-                ivPlay.clearAnimation();
-                pausePlaying();
-            }
-        } else {
+        STATE_PLAY_MUSIC = STATE_PLAYING;
+    }
+
+    private void playAudio() {
+        Flog.e(" xxx  play");
+        STATE_PLAY_MUSIC = STATE_PLAYING;
+
+        int timeStart = Integer.parseInt(rangeSeekbar.getSelectedMinValue() + "") / 1000;
+        int timeEnd = Integer.parseInt(rangeSeekbar.getSelectedMaxValue() + "") / 1000;
+        int timePlay = timeEnd - timeStart;
+
+        if (timePlay > 0) {
+
             try {
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.setDataSource(selectedSong.getFilePath());
                 mediaPlayer.prepare();
-                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                    @Override
-                    public void onPrepared(MediaPlayer mp) {
-                        mediaPlayer.start();
-
-                    }
+                mediaPlayer.setOnPreparedListener(mp -> {
+                    mediaPlayer.start();
+                    mediaPlayer.seekTo((Integer) rangeSeekbar.getSelectedMinValue());
                 });
+
+                mediaPlayer.setOnCompletionListener(mp -> {
+                    //mediaPlayer.stop();
+                    Flog.e(" onComplelteeeeeeeeee");
+                    STATE_PLAY_MUSIC = STATE_STOP;
+                });
+
                 ivPlay.setImageResource(R.drawable.ic_pause_black_24dp);
+
             } catch (IOException e) {
+
                 if (position < musicModelList.size() - 1) {
                     position++;
                 }
-                playMusic(position, true, false);
+
+                playMusic(position);
             }
 
-            isPlaying = true;
+
+        } else {
+            Toast.makeText(getContext(), getString(R.string.time_fail), Toast.LENGTH_SHORT).show();
         }
 
         if (handler == null) {
@@ -286,42 +274,39 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
             @Override
             public void run() {
                 if (mediaPlayer != null) {
-                    Log.d("hhhhhh", mediaPlayer.getCurrentPosition() + "________" + rangeSeekbar.getSelectedMaxValue());
                     if (mediaPlayer.getCurrentPosition() >= (Integer) rangeSeekbar.getSelectedMaxValue()) {
-                        isPlaying = false;
-                        ivPlay.setImageResource(R.drawable.ic_pause_black_24dp);
-                        mediaPlayer.stop();
-                        mediaPlayer.reset();
-                        mediaPlayer.release();
-                        mediaPlayer = null;
+                        ivPlay.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+//                        mediaPlayer.stop();
+//                        mediaPlayer.reset();
+//                        mediaPlayer.release();
+//                        mediaPlayer = null;
+                        isMaxRangerSeekbar = true;
+                        mediaPlayer.pause();
+                        STATE_PLAY_MUSIC = STATE_PAUSE;
                     }
+
                 }
                 handler.postDelayed(this, 1000);
             }
         }, 1000);
     }
 
-    private void resumePlaying() {
-        ivPlay.setImageResource(R.drawable.ic_pause_black_24dp);
-        mediaPlayer.start();
-        mediaPlayer.seekTo((Integer) rangeSeekbar.getSelectedMinValue());
-    }
-
-    private void pausePlaying() {
-        if (mediaPlayer != null) {
-            mediaPlayer.pause();
-            ivPlay.setVisibility(View.VISIBLE);
-            ivPlay.setImageResource(R.drawable.ic_play_arrow_black_24dp);
-        }
-    }
+    private boolean isMaxRangerSeekbar = false;
 
     private void stopMedia() {
-        isPlaying = false;
+        STATE_PLAY_MUSIC = STATE_STOP;
+
         ivPlay.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+
+        if (mediaPlayer == null) {
+            return;
+        }
+
         mediaPlayer.stop();
         mediaPlayer.reset();
         mediaPlayer.release();
         mediaPlayer = null;
+
     }
 
 
@@ -332,8 +317,9 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     }
 
     @Override
-    public void onClick(int index) {
-        playMusic(index, true, false);
+    public void onClick(int position) {
+        STATE_PLAY_MUSIC = STATE_STOP;
+        playMusic(position);
     }
 
     private boolean isExistSong() {
@@ -430,45 +416,33 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
         }
     }
 
-    private boolean isFistPlay = true; // fisrt play audio
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_play:
                 if (isExistSong()) {
-
-                    if (isFistPlay) {
-                        isFistPlay = false;
-                        playMusic(position, true, true);
-                        return;
-                    }
-
-                    if (isOnPause) {
-                        playMusic(position, true, false);
-                    } else {
-                        playMusic(position, false, false);
-                    }
-
+                    playMusic(position);
                 }
 
                 break;
 
             case R.id.iv_next:
+                STATE_PLAY_MUSIC = STATE_STOP;
                 if (isExistSong()) {
                     if (position < musicModelList.size() - 1) {
                         position++;
                     }
-                    playMusic(position, true, false);
+                    playMusic(position);
                 }
                 break;
 
             case R.id.iv_previous:
+                STATE_PLAY_MUSIC = STATE_STOP;
                 if (isExistSong()) {
                     if (position > 0) {
                         position--;
                     }
-                    playMusic(position, true, false);
+                    playMusic(position);
                 }
                 break;
         }

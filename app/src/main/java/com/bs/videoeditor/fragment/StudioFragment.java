@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -16,6 +19,7 @@ import com.bs.videoeditor.R;
 import com.bs.videoeditor.adapter.StudioAdapter;
 import com.bs.videoeditor.statistic.Statistic;
 import com.bs.videoeditor.utils.Flog;
+import com.bs.videoeditor.utils.Utils;
 
 import static com.bs.videoeditor.statistic.Statistic.INDEX_ADD_MUSIC;
 import static com.bs.videoeditor.statistic.Statistic.INDEX_CUTTER;
@@ -29,16 +33,14 @@ public class StudioFragment extends AbsFragment {
     public static final int ADD_MUSIC = 3;
     private StudioAdapter studioAdapter;
     private ViewPager viewPager;
-    public Toolbar toolbar;
     private SearchView searchView;
-    private StudioFragmentDetail studioFragmentDetail;
     private int CHECK_STATE_ADD = 0;
     private int OPEN_FRAGMENT = 0;
-
+    private StudioFragmentDetail studioFragmentDetail;
 
     private void addTabFragment() {
 
-        OPEN_FRAGMENT = getArguments().getInt(Statistic.OPEN_FRAGMENT,0);
+        OPEN_FRAGMENT = getArguments().getInt(Statistic.OPEN_FRAGMENT, 0);
 
         studioAdapter = new StudioAdapter(getChildFragmentManager());
 
@@ -68,7 +70,7 @@ public class StudioFragment extends AbsFragment {
 
             }
         });
-        Flog.e(" open nnnnn "+ OPEN_FRAGMENT);
+        Flog.e(" open nnnnn " + OPEN_FRAGMENT);
         if (OPEN_FRAGMENT == INDEX_CUTTER) {
             viewPager.setCurrentItem(INDEX_CUTTER);
 
@@ -93,13 +95,60 @@ public class StudioFragment extends AbsFragment {
 
     @Override
     public void initViews() {
-
-        getToolbar().getMenu().clear();
-
         addTabFragment();
     }
 
-    public static StudioFragment newInstance(Bundle bundle   ) {
+    @Override
+    public void initToolbar() {
+        super.initToolbar();
+        getToolbar().getMenu().clear();
+        getToolbar().inflateMenu(R.menu.menu_search);
+        getToolbar().setNavigationOnClickListener(view -> {
+            getActivity().onBackPressed();
+            Utils.closeKeyboard(getActivity());
+        });
+        searchAudio();
+    }
+
+    private void searchAudio() {
+        MenuItem menuItem = getToolbar().getMenu().findItem(R.id.item_search);
+        searchView = (SearchView) menuItem.getActionView();
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                //actionSearch(s);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+
+                PagerAdapter pagerAdapter = viewPager.getAdapter();
+
+                for (int i = 0; i < pagerAdapter.getCount(); i++) {
+
+                    Fragment viewPagerFragment = (Fragment) viewPager.getAdapter().instantiateItem(viewPager, i);
+
+                    if (viewPagerFragment.isAdded()) {
+
+                        if (viewPagerFragment instanceof StudioFragmentDetail) {
+
+                            studioFragmentDetail = (StudioFragmentDetail) viewPagerFragment;
+
+                            if (studioFragmentDetail != null) {
+                                studioFragmentDetail.beginSearch(s);
+                            }
+                        }
+                    }
+                }
+
+                return true;
+            }
+        });
+    }
+
+    public static StudioFragment newInstance(Bundle bundle) {
         StudioFragment fragment = new StudioFragment();
         fragment.setArguments(bundle);
         return fragment;

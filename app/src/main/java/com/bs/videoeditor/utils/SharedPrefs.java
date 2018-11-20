@@ -3,6 +3,8 @@ package com.bs.videoeditor.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.bs.videoeditor.application.MyApplication;
+
 
 public class SharedPrefs {
     private static final String PREFS_NAME = "share_prefs";

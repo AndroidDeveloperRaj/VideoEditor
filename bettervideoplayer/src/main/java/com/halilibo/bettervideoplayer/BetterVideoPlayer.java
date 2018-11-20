@@ -381,7 +381,7 @@ public class BetterVideoPlayer extends RelativeLayout implements IUserMethods,
     mInitialPosition = pos;
   }
 
-  private void prepare() {
+  public void prepare() {
     if (!mSurfaceAvailable || mSource == null || mPlayer == null || mIsPrepared)
       return;
     try {
@@ -638,6 +638,7 @@ public class BetterVideoPlayer extends RelativeLayout implements IUserMethods,
     if (mPlayer == null) return;
     try {
       mPlayer.stop();
+      mCallback.onStop(this);
     } catch (Throwable ignored) {
     }
     if (mHandler == null) return;

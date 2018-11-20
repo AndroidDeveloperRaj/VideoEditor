@@ -53,6 +53,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
     private ProgressDialog progressDialog;
     private boolean isSuccessCut = false;
 
+
     public static CutterFragment newInstance(Bundle bundle) {
         CutterFragment fragment = new CutterFragment();
         fragment.setArguments(bundle);

@@ -25,7 +25,6 @@ public class DialogInputName extends AbsDialog {
     private EditText edtNameFile;
     private String nameDefault = null;
 
-
     public DialogInputName(Context context, IInputNameFile callback, String nameDefault) {
         super(context);
         this.context = context;

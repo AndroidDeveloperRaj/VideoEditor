@@ -92,6 +92,31 @@ public class VideoStudioAdapter extends RecyclerView.Adapter<VideoStudioAdapter.
             ivMore = itemView.findViewById(R.id.iv_more);
             checkBox = itemView.findViewById(R.id.checkbox);
 
+            checkBox.setOnCheckedChangeListener((compoundButton, checked) -> {
+                if (context.isActionMode) {
+
+                    if (checked) {
+
+                        videoModelList.get(getAdapterPosition()).setCheck(true);
+
+                        boolean isAll = true;
+
+                        for (VideoModel videoModel1 : videoModelList) {
+                            if (!videoModel1.isCheck()) {
+                                isAll = false;
+                            }
+                        }
+
+                        if (isAll) context.isSelectAll = true;
+
+                    } else {
+                        context.isSelectAll = false;
+                        videoModelList.get(getAdapterPosition()).setCheck(false);
+                    }
+                    context.prepareSelection(checkBox, getAdapterPosition());
+                }
+            });
+
             itemView.setOnClickListener(v -> {
                 if (context.isActionMode) {
 
