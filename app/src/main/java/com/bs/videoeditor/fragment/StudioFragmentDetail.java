@@ -1,16 +1,22 @@
 package com.bs.videoeditor.fragment;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,13 +24,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bs.videoeditor.BuildConfig;
 import com.bs.videoeditor.R;
 import com.bs.videoeditor.activity.MainActivity;
 import com.bs.videoeditor.adapter.VideoAdapter;
 import com.bs.videoeditor.adapter.VideoStudioAdapter;
+import com.bs.videoeditor.listener.IInputNameFile;
 import com.bs.videoeditor.model.VideoModel;
 import com.bs.videoeditor.statistic.Statistic;
+import com.bs.videoeditor.utils.FileUtil;
+import com.bs.videoeditor.utils.Flog;
 import com.bs.videoeditor.utils.Utils;
 
 import java.io.File;
@@ -32,11 +43,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.bs.videoeditor.utils.FileUtil.deleteAudio;
+import static com.bs.videoeditor.utils.FileUtil.renameContentProvider;
+import static com.bs.videoeditor.utils.Utils.closeKeyboard;
+import static com.bs.videoeditor.utils.Utils.getFileExtension;
+
 /**
  * Created by Hung on 11/15/2018.
  */
 
-public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.ItemSelected, VideoStudioAdapter.ItemSelectedStudio {
+public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.ItemSelected, VideoStudioAdapter.ItemSelectedStudio, IInputNameFile {
     private VideoStudioAdapter videoAdapter;
     private List<VideoModel> videoModelList = new ArrayList<>(), listAllVideo = new ArrayList<>(), mListChecked = new ArrayList<>();
     private RecyclerView rvVideo;
@@ -47,6 +63,29 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
     private MainActivity mainActivity;
     private int indexOption = 0;
     private ActionMode actionMode = null;
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent == null || intent.getAction() == null) {
+                return;
+            }
+
+            switch (intent.getAction()) {
+
+                case Statistic.CLEAR_ACTION_MODE:
+
+                    if (actionMode == null) {
+                        return;
+                    }
+
+                    actionMode.finish();
+                    break;
+            }
+
+        }
+    };
+
 
     public static StudioFragmentDetail newInstance(Bundle bundle) {
         StudioFragmentDetail fragment = new StudioFragmentDetail();
@@ -111,7 +150,8 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
                     videoModel.setCheck(false);
                 }
                 videoAdapter.notifyDataSetChanged();
-                mode.finish();
+                actionMode.finish();
+                actionMode = null;
             }
         });
     }
@@ -139,81 +179,77 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         }
     }
 
-
     private void settingDeleteRecord() {
-        List<VideoModel> audios = new ArrayList<>();
-        for (VideoModel audioEntity : videoModelList) {
-            if (audioEntity.getPath().toLowerCase().equals(audioEntity.getPath().toLowerCase())) {
-                audios.add(videoModelList.get(indexOption));
+        List<VideoModel> videoModels = new ArrayList<>();
+        for (VideoModel videoModel : videoModelList) {
+            if (videoModel.getPath().toLowerCase().equals(videoModel.getPath().toLowerCase())) {
+                videoModels.add(videoModelList.get(indexOption));
             }
         }
 
 
         if (mListChecked.size() != 0) {
-
             for (VideoModel videoModel : mListChecked) {
-                File file = new File(videoModel.getPath());
-                file.delete();
-
-                Utils.deleteAudio(getContext(), videoModel.getPath());
-
                 countItemSelected = countItemSelected - 1;
-
+                new File(videoModel.getPath()).delete();
+                deleteAudio(getContext(), videoModel.getPath());
             }
 
             updateList();
 
             updateCountItemSelected();
 
-            videoAdapter.notifyDataSetChanged();
+            notifiAdapter();
+
             getContext().sendBroadcast(new Intent(Statistic.UPDATE_DELETE_RECORD));
         }
     }
 
-    private void updateList() {
+    private void notifiAdapter() {
+        videoAdapter.notifyDataSetChanged();
+    }
 
+    private void updateList() {
         listAllVideo.clear();
         listAllVideo.addAll(Utils.getStudioVideos(getContext(), checkCurrentFragment));
-
         videoModelList.clear();
         videoModelList.addAll(listAllVideo);
-
-        //Collections.reverse(videoModelList);
-
         videoAdapter.notifyDataSetChanged();
 
-        Utils.closeKeyboard(getActivity());
+        notifiAdapter();
+        hideBottomSheetDialog();
+        closeKeyboard(getActivity());
 
-        if (bottomSheetDialog != null) {
-            bottomSheetDialog.dismiss();
-        }
     }
 
 
     private void actionModeDelete(final ActionMode mode) {
         if (mListChecked.size() != 0) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle(getResources().getString(R.string.delete_this_record));
+            builder.setNegativeButton(android.R.string.no, (dialog, id) -> dialog.dismiss());
             builder.setPositiveButton(android.R.string.yes, (dialog, id) -> {
-
                 settingDeleteRecord();
                 isActionMode = false;
                 isSelectAll = false;
                 videoAdapter.notifyDataSetChanged();
                 mode.finish();
             });
-            builder.setNegativeButton(android.R.string.no, (dialog, id) -> dialog.dismiss());
-            AlertDialog dialog = builder.create();
-            dialog.show();
+
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+
         }
     }
 
 
     public void updateCountItemSelected() {
-        if (countItemSelected == 0)
+        if (countItemSelected == 0) {
             actionMode.setTitle("0");
-        else
-            actionMode.setTitle(countItemSelected + "");
+            return;
+        }
+
+        actionMode.setTitle(countItemSelected + "");
     }
 
     public void prepareSelection(View view, int i) {
@@ -232,9 +268,10 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         }
     }
 
-
     @Override
     public void initViews() {
+
+        initActions();
 
         checkCurrentFragment = getArguments().getString(Statistic.CHECK_STUDIO_FRAGMENT, null);
         if (checkCurrentFragment == null) {
@@ -243,10 +280,9 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
 
         listAllVideo.clear();
         listAllVideo.addAll(Utils.getStudioVideos(getContext(), checkCurrentFragment));
+
         videoModelList.clear();
         videoModelList.addAll(listAllVideo);
-
-        //Collections.reverse(videoModelList);
 
         videoAdapter = new VideoStudioAdapter(videoModelList, this, this, true);
 
@@ -256,33 +292,28 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         rvVideo.setLayoutManager(new LinearLayoutManager(getContext()));
         rvVideo.setAdapter(videoAdapter);
 
-        //loadVideo();
+
+    }
+
+    private void initActions() {
+        IntentFilter it = new IntentFilter();
+        it.addAction(Statistic.CLEAR_ACTION_MODE);
+        getContext().registerReceiver(receiver, it);
+    }
+
+    @Override
+    public void onDestroy() {
+        getContext().unregisterReceiver(receiver);
+        super.onDestroy();
     }
 
     private void isHasVideo() {
         if (videoModelList.size() == 0) {
             tvNoVideo.setVisibility(View.VISIBLE);
+            return;
         }
 
         tvNoVideo.setVisibility(View.GONE);
-    }
-
-    private void loadVideo() {
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                videoModelList.clear();
-                videoModelList.addAll(Utils.getStudioVideos(getContext(), checkCurrentFragment));
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                isHasVideo();
-                videoAdapter.notifyDataSetChanged();
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
@@ -290,18 +321,25 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
 
     }
 
+    private boolean isStartCreateActionMode = false;
+
     @Override
     public boolean onLongClick(int index) {
-        createAction();
-        return true;
+        if (actionMode == null) {
+            createAction();
+            videoModelList.get(index).setCheck(true);
+            videoAdapter.notifyDataSetChanged();
+            updateCountItemSelected();
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     public void onOptionClick(int index) {
         indexOption = index;
-
         showBottomSheet(indexOption);
-
     }
 
     private BottomSheetDialog bottomSheetDialog;
@@ -326,18 +364,139 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
     }
 
     private void openVideo() {
+        Uri uri;
+
+        VideoModel videoModel = videoModelList.get(indexOption);
+
+        Intent intent = new Intent();
+
+        intent.setAction(Intent.ACTION_VIEW);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            uri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".provider", new File(videoModel.getPath()));
+        } else {
+            uri = Uri.fromFile(new File(videoModel.getPath()));
+        }
+
+        intent.setDataAndType((uri), "audio/*");
+
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        startActivity(intent);
+
+
     }
 
+    private void hideBottomSheetDialog() {
+        if (bottomSheetDialog != null) {
+            bottomSheetDialog.dismiss();
+        }
+    }
+
+    private DialogInputName dialogInputName;
+
     private void renameVideo() {
+        dialogInputName = new DialogInputName(getContext(), this, "");
+        hideBottomSheetDialog();
     }
 
     private void detailVideo() {
+        VideoModel videoModel = videoModelList.get(indexOption);
+        TextView tvTitle, tvFilePath, tvDuration, tvSize;
+        DialogDetail dialogDetail = new DialogDetail(getContext());
+        dialogDetail.setOnClickBtnOk(v -> dialogDetail.hideDialog());
+
+        View view = dialogDetail.getView();
+        tvSize = view.findViewById(R.id.tvSize);
+        tvTitle = view.findViewById(R.id.tvTitle);
+        tvFilePath = view.findViewById(R.id.tvFilePath);
+        tvDuration = view.findViewById(R.id.tvDuaration);
+        tvTitle.setText(getResources().getString(R.string.title_audio) + ": " + videoModel.getNameAudio());
+        tvSize.setText(getString(R.string.size) + ": " + Utils.getStringSizeLengthFile(videoModel.getSize()));
+        tvFilePath.setText(getResources().getString(R.string.path) + ": " + videoModel.getPath());
+        tvDuration.setText(getResources().getString(R.string.duration) + ": " + Utils.convertMillisecond(Long.parseLong(videoModel.getDuration())));
+
+        hideBottomSheetDialog();
+
     }
 
     private void deleteVideo() {
+        VideoModel videoModel = videoModelList.get(indexOption);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(getResources().getString(R.string.delete_this_record));
+        builder.setNegativeButton(android.R.string.no, (dialog, id) -> dialog.dismiss());
+        builder.setPositiveButton(getResources().getString(R.string.yes), (dialog, id) -> {
+            new File(videoModel.getPath()).delete();
+            deleteAudio(getContext(), videoModel.getPath());
+            updateList();
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        hideBottomSheetDialog();
     }
 
     private void shareVideo() {
+        Uri uri;
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            uri = FileProvider.getUriForFile(getContext(), BuildConfig.APPLICATION_ID + ".provider", new File(videoModelList.get(indexOption).getPath()));
+        } else {
+            uri = Uri.fromFile(new File(videoModelList.get(indexOption).getPath()));
+        }
+        intent.setType("video/*");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        startActivity(Intent.createChooser(intent, getString(R.string.share_file)));
+        hideBottomSheetDialog();
     }
 
+    @Override
+    public void onApplySelect(String nameFile) {
+        applyRenameVideo(nameFile);
+    }
+
+    private void applyRenameVideo(String nameFile) {
+        File currentFile, newFile;
+
+        VideoModel videoModel = videoModelList.get(indexOption);
+
+        currentFile = new File(videoModel.getPath());
+
+        newFile = new File(videoModel.getPath().replace(videoModel.getNameAudio() + Statistic.FORMAT_MP4, "") + nameFile + getFileExtension(videoModel.getPath()));
+
+        if (newFile.exists()) {
+            Toast.makeText(getContext(), getString(R.string.name_file_exist), Toast.LENGTH_SHORT).show();
+
+        } else {
+            rename(currentFile, newFile);
+            renameContentProvider(nameFile, getFileExtension(videoModel.getPath()), videoModel, getContext());
+            updateList();
+            onHideDialogInputNameFile();
+        }
+    }
+
+    private void onHideDialogInputNameFile() {
+        if (dialogInputName != null) {
+            dialogInputName.hideDialog();
+        }
+    }
+
+    private boolean rename(File from, File to) {
+        return from.getParentFile().exists() && from.exists() && from.renameTo(to);
+    }
+
+    @Override
+    public void onCancelSelect() {
+        onHideDialogInputNameFile();
+    }
+
+    @Override
+    public void onFileNameEmpty() {
+        Toast.makeText(getContext(), getString(R.string.name_file_can_not_empty), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFileNameHasSpecialCharacter() {
+        Toast.makeText(getContext(), getString(R.string.name_file_can_not_contain_character), Toast.LENGTH_SHORT).show();
+    }
 }

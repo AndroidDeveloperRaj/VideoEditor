@@ -193,11 +193,6 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
 
     private boolean mergerAudio(String nameFile) {
 
-        if (Utils.isStringHasCharacterSpecial(edtNameFile.getText().toString().trim())) {
-            Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
-            return true;
-        }
-
         boolean isAbleMerger = true;
 
         for (VideoModel videoModel : videoModelList) {
@@ -208,7 +203,6 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
         }
 
         if (isAbleMerger) {
-
 
             if (!nameFile.isEmpty()) {
 
@@ -335,24 +329,6 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
                 public void onProgress(String s) {
                     Flog.e(s);
 
-//                    if (s.contains("Audio: aac (LC)") || s.contains("Audio: pcm_s16le")) {
-//                        isError = true;
-//
-//                        ffmpeg.killRunningProcesses();
-//
-//                        if (getFragmentManager() != null) {
-//                            getFragmentManager().popBackStack();
-//                        }
-//
-//                        if (progressDialog != null) {
-//                            progressDialog.dismiss();
-//                        }
-//
-//                        new File(path).delete();
-//
-//                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
-//                    }
-
                     try {
                         int durationFile = (int) Utils.getProgress(s, duration / 1000);
 
@@ -445,5 +421,15 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
         }
 
         dialogInputName.hideDialog();
+    }
+
+    @Override
+    public void onFileNameEmpty() {
+        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFileNameHasSpecialCharacter() {
+        Toast.makeText(getContext(), getString(R.string.name_file_can_not_contain_character), Toast.LENGTH_SHORT).show();
     }
 }

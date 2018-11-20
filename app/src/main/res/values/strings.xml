@@ -28,10 +28,10 @@
     <string name="error">Error</string>
     <string name="yes">Yes</string>
     <string name="name_file_exist">File name is exist!</string>
-    <string name="delete_this_record"><![CDATA[>Are you sure want to delete this file?]]></string>
+    <string name="delete_this_record">Are you sure want to delete this file?</string>
     <string name="checked_all">Check all</string>
     <string name="delete_videos">Delete videos</string>
-    <string name="delete_file">Delete file</string>
+    <string name="delete_file">Delete</string>
     <string name="detail">Detail</string>
     <string name="rename">Rename</string>
     <string name="open_file_with">Open file with</string>
@@ -40,5 +40,11 @@
     <string name="time_fail">Time audio cannot be less than zero!</string>
     <string name="choose_other_file">Please choose other file!</string>
     <string name="not_support_this_file">Not support this file!</string>
+    <string name="share_file">Share audio to..</string>
+    <string name="path">Path</string>
+    <string name="duration">Duration</string>
+    <string name="size">Size</string>
+    <string name="date_time">Date added</string>
+    <string name="fail_rename">Rename failed!</string>
 
 </resources>

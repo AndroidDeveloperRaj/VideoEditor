@@ -8,4 +8,8 @@ public interface IInputNameFile {
     void onApplySelect(String nameFile);
 
     void onCancelSelect();
+
+    void onFileNameEmpty();
+
+    void onFileNameHasSpecialCharacter();
 }

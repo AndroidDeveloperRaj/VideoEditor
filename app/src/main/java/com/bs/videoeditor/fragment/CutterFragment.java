@@ -33,6 +33,8 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import static com.bs.videoeditor.utils.Utils.getFileExtension;
+
 /**
  * Created by Hung on 11/15/2018.
  */
@@ -83,20 +85,8 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
 
     private void save(String fileName) {
         String nameFile = null, extensionFile = null;
+
         int startTime = 0, endTime = 0, durationAudio = 0;
-
-        nameFile = fileName;
-        extensionFile = Utils.getFileExtension(pathOldFile);
-
-        if (FileUtil.isEmpty(nameFile)) {
-            Toast.makeText(getContext(), getString(R.string.name_file_can_not_empty), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (Utils.isStringHasCharacterSpecial(nameFile)) {
-            Toast.makeText(getContext(), getString(R.string.name_file_can_not_contain_character), Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         pathNewFile = Environment.getExternalStorageDirectory().getAbsolutePath() + Statistic.DIR_APP + Statistic.DIR_CUTTER + "/";
 
@@ -104,7 +94,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
             new File(pathNewFile).mkdirs();
         }
 
-        pathNewFile = pathNewFile + nameFile + extensionFile;
+        pathNewFile = pathNewFile + fileName + getFileExtension(pathOldFile);
 
         startTime = Math.round(videoTimelineView.getLeftProgress() * videoTimelineView.getVideoLength() / 1000);
         endTime = Math.round(videoTimelineView.getRightProgress() * videoTimelineView.getVideoLength() / 1000);
@@ -114,7 +104,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
 
         hideDialogSave();
         initDialogProgress();
-        execFFmpegBinary(command, pathNewFile, nameFile);
+        execFFmpegBinary(command, pathNewFile, fileName);
 
     }
 
@@ -125,13 +115,6 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
         dialogInputName = new DialogInputName(getContext(), this, defaultName);
         dialogInputName.initDialog();
         return true;
-    }
-
-    private void createDialog(View view) {
-        builder = new AlertDialog.Builder(getContext());
-        builder.setView(view);
-        alertDialog = builder.create();
-        alertDialog.show();
     }
 
     @Nullable
@@ -305,5 +288,15 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
             return;
 
         dialogInputName.hideDialog();
+    }
+
+    @Override
+    public void onFileNameEmpty() {
+        Toast.makeText(getContext(), getString(R.string.name_file_can_not_empty), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onFileNameHasSpecialCharacter() {
+        Toast.makeText(getContext(), getString(R.string.name_file_can_not_contain_character), Toast.LENGTH_SHORT).show();
     }
 }

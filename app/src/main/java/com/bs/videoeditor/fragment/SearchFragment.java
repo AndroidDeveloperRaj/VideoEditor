@@ -55,6 +55,7 @@ public class SearchFragment extends AbsFragment implements VideoAdapter.ItemSele
         getToolbar().setTitle(R.string.select_file);
         getToolbar().getMenu().clear();
         getToolbar().inflateMenu(R.menu.menu_search);
+        getToolbar().setNavigationOnClickListener(v -> backFragment());
         searchAudio(getToolbar());
     }
 
@@ -63,6 +64,7 @@ public class SearchFragment extends AbsFragment implements VideoAdapter.ItemSele
         if (searchView != null) {
             searchView.clearFocus();
         }
+
         getFragmentManager().popBackStack();
     }
 
