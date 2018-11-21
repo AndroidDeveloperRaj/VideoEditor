@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.bs.videoeditor.R;
 import com.bs.videoeditor.listener.IInputNameFile;
@@ -88,6 +89,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         bvp.setHideControlsOnPlay(true);
         bvp.setBottomProgressBarVisibility(false);
         bvp.enableSwipeGestures(getActivity().getWindow());
+
 
     }
 
@@ -179,6 +181,22 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         String sSpeed = "[0:v]setpts=" + ptsVideo + "*PTS[v];[0:a]atempo=" + tempoVideo + "[a]";
 
         String[] complexCommand = {"-i", videoModel.getPath(), "-filter_complex", sSpeed, "-map", "[v]", "-map", "[a]", "-b:v", "2097k", "-r", "60", "-vcodec", "mpeg4", newPath};
+
+        Bundle bundle = new Bundle();
+        bundle.putStringArray(Statistic.ARRAY_COMMAND, complexCommand);
+        bundle.putString(Statistic.PATH_VIDEO, newPath);
+        bundle.putString(Statistic.TITLE_VIDEO, nameFile);
+        bundle.putParcelable(Statistic.VIDEO_MODEL, videoModel);
+
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .add(R.id.view_container1, ProgressSavingFragment.newInstance(bundle))
+                .addToBackStack(null)
+                .commit();
+
+        if (true) {
+            return;
+        }
+
 
         initDialogProgress();
 

@@ -42,6 +42,8 @@ public class Statistic {
     public static final String SEND_PATH_ADD_MUSIC = "send_path_add_music";
     public static final String PATH_MUSIC = "path_music";
     public static final String FORMAT_MP4 = ".mp4";
+    public static final String ARRAY_COMMAND ="command" ;
+    public static final String TITLE_VIDEO ="title_video" ;
     public static File mSdCard = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
     public static File APP_DIRECTORY = new File(mSdCard, "BVideoEditor");
     public static final File TEMP_DIRECTORY = new File(APP_DIRECTORY, ".temp");
