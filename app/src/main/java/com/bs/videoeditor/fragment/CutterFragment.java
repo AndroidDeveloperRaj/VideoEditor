@@ -132,9 +132,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
                 videoView.pause();
                 videoControllerView.goPauseMode();
             }
-
             videoView.seekTo((int) currentMili);
-
         });
     }
 

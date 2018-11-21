@@ -28,7 +28,15 @@ public class VideoModel implements Parcelable, Comparable<VideoModel> {
     private String relution;
     private long size;
     private boolean isCheck;
+    private String dateModifier;
 
+    public String getDateModifier() {
+        return dateModifier;
+    }
+
+    public void setDateModifier(String dateModifier) {
+        this.dateModifier = dateModifier;
+    }
 
     public boolean isCheck() {
         return isCheck;
@@ -38,7 +46,7 @@ public class VideoModel implements Parcelable, Comparable<VideoModel> {
         isCheck = check;
     }
 
-    public VideoModel(String id, String nameAudio, String nameArtist, String nameAbum, String duration, String path, String relution, long size) {
+    public VideoModel(String id, String nameAudio, String nameArtist, String nameAbum, String duration, String path, String relution, long size, String dateModifier) {
         this.id = id;
         this.nameAudio = nameAudio;
         this.nameArtist = nameArtist;
@@ -47,6 +55,7 @@ public class VideoModel implements Parcelable, Comparable<VideoModel> {
         this.path = path;
         this.relution = relution;
         this.size = size;
+        this.dateModifier = dateModifier;
     }
 
     protected VideoModel(Parcel in) {
@@ -59,6 +68,7 @@ public class VideoModel implements Parcelable, Comparable<VideoModel> {
         relution = in.readString();
         size = in.readLong();
         isCheck = in.readByte() != 0;
+        dateModifier = in.readString();
     }
 
 
@@ -142,6 +152,7 @@ public class VideoModel implements Parcelable, Comparable<VideoModel> {
         dest.writeString(relution);
         dest.writeLong(size);
         dest.writeByte((byte) (isCheck ? 1 : 0));
+        dest.writeString(dateModifier);
     }
 
     @Override

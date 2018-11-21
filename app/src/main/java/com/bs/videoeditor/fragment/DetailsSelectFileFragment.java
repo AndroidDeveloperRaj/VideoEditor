@@ -132,8 +132,12 @@ public class DetailsSelectFileFragment extends AbsFragment {
                     Bundle bundle = new Bundle();
                     bundle.putParcelableArrayList(Statistic.LIST_VIDEO, (ArrayList<? extends Parcelable>) audioEntities);
 
-                    getFragmentManager().beginTransaction()
-                            .add(R.id.view_container, SearchFragment.newInstance(bundle))
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .setCustomAnimations(R.anim.animation_left_to_right
+                                    , R.anim.animation_right_to_left
+                                    , R.anim.animation_left_to_right
+                                    , R.anim.animation_right_to_left)
+                            .replace(R.id.view_container, SearchFragment.newInstance(bundle))
                             .addToBackStack(null)
                             .commit();
 

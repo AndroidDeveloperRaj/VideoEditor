@@ -9,5 +9,7 @@
     <color name="black">#000</color>
     <color name="black_transparent_80">#80000000</color>
     <color name="devider">#51525C</color>
+    <color name="white_80pc">#caffffff</color>
+    <color name="colorControlHighlight">#fff</color>
 
 </resources>

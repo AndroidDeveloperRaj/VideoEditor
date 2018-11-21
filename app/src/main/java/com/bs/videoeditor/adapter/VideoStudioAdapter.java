@@ -21,6 +21,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.bs.videoeditor.utils.Utils.CONVERT_LONG_TO_DATE;
+import static com.bs.videoeditor.utils.Utils.convertMillisecond;
+
 /**
  * Created by Hung on 11/15/2018.
  */
@@ -49,16 +52,20 @@ public class VideoStudioAdapter extends RecyclerView.Adapter<VideoStudioAdapter.
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View itemView = inflater.inflate(R.layout.item_video, parent, false);
+        View itemView = inflater.inflate(R.layout.item_studio, parent, false);
         return new ViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         VideoModel videoModel = videoModelList.get(position);
-        holder.tvName.setText(videoModel.getNameAudio());
-        holder.tvTime.setText(Utils.convertMillisecond(Long.parseLong(videoModel.getDuration())));
         holder.checkBox.setChecked(videoModelList.get(position).isCheck());
+        holder.tvName.setText(videoModel.getNameAudio());
+        holder.tvTime.setText(Utils.convertDate(videoModel.getDateModifier(), CONVERT_LONG_TO_DATE));
+        holder.tvDateTime.setText(Utils.getStringSizeLengthFile(videoModel.getSize())
+                + "  " + Utils.getFileExtension(videoModel.getPath())
+                + "  " + convertMillisecond(Long.parseLong(videoModel.getDuration())));
+
         Glide.with(context).load(Uri.fromFile(new File(videoModel.getPath()))).into(holder.ivThumb);
 
         // action mode
@@ -80,7 +87,7 @@ public class VideoStudioAdapter extends RecyclerView.Adapter<VideoStudioAdapter.
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvName, tvTime;
+        private TextView tvName, tvTime, tvDateTime;
         private ImageView ivThumb, ivMore;
         private CheckBox checkBox;
 
@@ -88,6 +95,7 @@ public class VideoStudioAdapter extends RecyclerView.Adapter<VideoStudioAdapter.
             super(itemView);
             tvName = itemView.findViewById(R.id.tv_name);
             tvTime = itemView.findViewById(R.id.tv_time);
+            tvDateTime = itemView.findViewById(R.id.tv_date_time);
             ivThumb = itemView.findViewById(R.id.iv_thumb);
             ivMore = itemView.findViewById(R.id.iv_more);
             checkBox = itemView.findViewById(R.id.checkbox);

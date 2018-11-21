@@ -24,6 +24,7 @@ import com.bsoft.core.AppRate;
 import com.bsoft.core.BUtils;
 import com.bsoft.core.CrsDialogFragment;
 import com.bsoft.core.DialogExitApp;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdSize;
 
 import java.util.List;
@@ -49,19 +50,19 @@ public class MainActivity extends AbsActivity {
 
             switch (intent.getAction()) {
                 case Statistic.OPEN_CUTTER_STUDIO:
-                    addFragmentStudio(INDEX_CUTTER);
+                    addFragmentStudio(INDEX_CUTTER, false);
                     break;
 
                 case Statistic.OPEN_MERGER_STUDIO:
-                    addFragmentStudio(INDEX_MERGER);
+                    addFragmentStudio(INDEX_MERGER, false);
                     break;
 
                 case Statistic.OPEN_SPEED_STUDIO:
-                    addFragmentStudio(INDEX_SPEED);
+                    addFragmentStudio(INDEX_SPEED, false);
                     break;
 
                 case Statistic.OPEN_ADD_MUSIC_STUDIO:
-                    addFragmentStudio(INDEX_ADD_MUSIC);
+                    addFragmentStudio(INDEX_ADD_MUSIC, false);
                     break;
             }
         }
@@ -87,6 +88,21 @@ public class MainActivity extends AbsActivity {
         initView();
         loadAdsBanner();
         loadAdsNative();
+    }
+
+    public void showFullAds(boolean isAlwaysShow) {
+        if (isAlwaysShow) {
+            if (admobFullHelper != null) {
+                admobFullHelper.show();
+            }
+
+        } else {
+            if (System.currentTimeMillis() % 3 == 0) {
+                if (admobFullHelper != null) {
+                    admobFullHelper.show();
+                }
+            }
+        }
     }
 
     private void initActions() {
@@ -160,16 +176,16 @@ public class MainActivity extends AbsActivity {
         ivBg = findViewById(R.id.iv_bg);
         viewAds = findViewById(R.id.fl_ad_banner);
 
-        findViewById(R.id.iv_cutter).setOnClickListener(view -> addFragmentListVideo(INDEX_CUTTER));
-        findViewById(R.id.iv_speed).setOnClickListener(view -> addFragmentListVideo(INDEX_SPEED));
+        findViewById(R.id.iv_cutter).setOnClickListener(view -> addFragmentListVideo(INDEX_CUTTER, false));
+        findViewById(R.id.iv_speed).setOnClickListener(view -> addFragmentListVideo(INDEX_SPEED, false));
         findViewById(R.id.iv_merger).setOnClickListener(view -> addFragmentMerger());
-        findViewById(R.id.iv_add_music).setOnClickListener(view -> addFragmentListVideo(INDEX_ADD_MUSIC));
-        findViewById(R.id.iv_studio).setOnClickListener(view -> addFragmentStudio(0));
+        findViewById(R.id.iv_add_music).setOnClickListener(view -> addFragmentListVideo(INDEX_ADD_MUSIC, false));
+        findViewById(R.id.iv_studio).setOnClickListener(view -> addFragmentStudio(0, true));
         findViewById(R.id.iv_more_app).setOnClickListener(view -> moreApp());
     }
 
 
-    private void addFragmentStudio(int indexFragmentOpen) {
+    private void addFragmentStudio(int indexFragmentOpen, boolean isAlwayShowAds) {
         Bundle bundle = new Bundle();
         bundle.putInt(Statistic.CHECK_OPEN_STUDIO, Statistic.FROM_MAIN);
         bundle.putInt(Statistic.OPEN_FRAGMENT, indexFragmentOpen);
@@ -181,13 +197,15 @@ public class MainActivity extends AbsActivity {
                 .add(R.id.view_container, StudioFragment.newInstance(bundle))
                 .addToBackStack(null)
                 .commit();
+
+        showFullAds(isAlwayShowAds);
     }
 
     private void moreApp() {
         BUtils.showMoreAppDialog(getSupportFragmentManager());
     }
 
-    private void addFragmentListVideo(int fragment) {
+    private void addFragmentListVideo(int fragment, boolean isAlwaysShow) {
         Bundle bundle = new Bundle();
         bundle.putInt(Statistic.ACTION, fragment);
         getSupportFragmentManager().beginTransaction()
@@ -195,9 +213,11 @@ public class MainActivity extends AbsActivity {
                         , R.anim.animation_right_to_left
                         , R.anim.animation_left_to_right
                         , R.anim.animation_right_to_left)
-                .add(R.id.view_container, ListVideoFragment.newInstance(bundle))
+                .replace(R.id.view_container, ListVideoFragment.newInstance(bundle))
                 .addToBackStack(null)
                 .commit();
+
+        showFullAds(isAlwaysShow);
     }
 
     private void addFragmentMerger() {

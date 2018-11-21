@@ -13,12 +13,15 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.bs.videoeditor.R;
 import com.bs.videoeditor.adapter.VideoAdapter;
 import com.bs.videoeditor.model.VideoModel;
 import com.bs.videoeditor.statistic.Statistic;
 import com.bs.videoeditor.utils.Utils;
+
+import net.protyposis.android.mediaplayer.VideoView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +30,7 @@ public class SearchFragment extends AbsFragment implements VideoAdapter.ItemSele
     private SearchView searchView;
     private RecyclerView rvAudio;
     private List<VideoModel> searchList = new ArrayList<>();
-    private VideoAdapter audioAdapter;
+    private VideoAdapter videoAdapter;
 
     public static SearchFragment newInstance(Bundle bundle) {
         SearchFragment fragment = new SearchFragment();
@@ -42,21 +45,24 @@ public class SearchFragment extends AbsFragment implements VideoAdapter.ItemSele
         videoModelList.clear();
         videoModelList.addAll(getArguments().getParcelableArrayList(Statistic.LIST_VIDEO));
 
-        audioAdapter = new VideoAdapter(videoModelList, this, getContext(), false);
+        videoAdapter = new VideoAdapter(videoModelList, this, getContext(), false);
         rvAudio = (RecyclerView) findViewById(R.id.rv_audio);
         rvAudio.setHasFixedSize(true);
         rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvAudio.setAdapter(audioAdapter);
+        rvAudio.setAdapter(videoAdapter);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.select_file);
+        toolbar.getMenu().clear();
+        toolbar.inflateMenu(R.menu.menu_search);
+        searchAudio(toolbar);
+
 
     }
 
     public void initToolbar() {
         super.initToolbar();
-        getToolbar().setTitle(R.string.select_file);
-        getToolbar().getMenu().clear();
-        getToolbar().inflateMenu(R.menu.menu_search);
-        getToolbar().setNavigationOnClickListener(v -> backFragment());
-        searchAudio(getToolbar());
+
     }
 
 
@@ -76,22 +82,21 @@ public class SearchFragment extends AbsFragment implements VideoAdapter.ItemSele
         searchView.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                actionSearch(s);
+               // actionSearch(s);
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String s) {
-                actionSearch(s);
+               // actionSearch(s);
                 return true;
             }
         });
     }
 
-
     private void actionSearch(String s) {
         searchList = Utils.filterVideoModel(videoModelList, s);
-        audioAdapter.setFilter(searchList);
+        videoAdapter.setFilter(searchList);
     }
 
     @Nullable

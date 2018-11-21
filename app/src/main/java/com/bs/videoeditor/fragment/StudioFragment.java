@@ -102,7 +102,7 @@ public class StudioFragment extends AbsFragment {
     public void initToolbar() {
         super.initToolbar();
         getToolbar().getMenu().clear();
-        getToolbar().inflateMenu(R.menu.menu_search);
+        getToolbar().inflateMenu(R.menu.menu_search1);
         getToolbar().setNavigationOnClickListener(view -> {
             getActivity().onBackPressed();
             Utils.closeKeyboard(getActivity());

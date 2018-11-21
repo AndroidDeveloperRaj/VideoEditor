@@ -1,15 +1,19 @@
 package com.bs.videoeditor.fragment;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bs.videoeditor.R;
@@ -19,6 +23,8 @@ import com.bs.videoeditor.model.VideoModel;
 import com.bs.videoeditor.statistic.Statistic;
 import com.bs.videoeditor.utils.Flog;
 import com.bs.videoeditor.utils.Utils;
+import com.vlonjatg.progressactivity.ProgressConstraintLayout;
+import com.vlonjatg.progressactivity.ProgressRelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +32,8 @@ import java.util.List;
 
 public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemSelected {
     private VideoAdapter videoAdapter;
-    private List<VideoModel> videoModelList;
+    private List<VideoModel> videoModelList = new ArrayList<>();
+    private List<VideoModel> listAllVideoMolder = new ArrayList<>();
     private RecyclerView rvVideo;
     private TextView tvNoVideo;
     private String listTitle[];
@@ -52,8 +59,42 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
         rvVideo.setLayoutManager(new LinearLayoutManager(getContext()));
         rvVideo.setAdapter(videoAdapter);
 
+
+    }
+
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         loadVideo();
     }
+
+    private SearchView searchView;
+
+    private void searchAudio(Toolbar toolbar) {
+        MenuItem menuItem = toolbar.getMenu().findItem(R.id.item_search);
+        searchView = (SearchView) menuItem.getActionView();
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                actionSearch(s);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                actionSearch(s);
+                return true;
+            }
+        });
+    }
+
+    private void actionSearch(String s) {
+        videoModelList = Utils.filterVideoModel(listAllVideoMolder, s);
+        videoAdapter.setFilter(videoModelList);
+    }
+
 
     @Override
     public void initToolbar() {
@@ -68,6 +109,8 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
 
         getToolbar().setTitle(listTitle[checkAction]);
         getToolbar().getMenu().clear();
+        getToolbar().inflateMenu(R.menu.menu_search1);
+        searchAudio(getToolbar());
     }
 
     private void isHasVideo() {
@@ -82,8 +125,10 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
+                listAllVideoMolder.clear();
+                listAllVideoMolder.addAll(Utils.getVideos(getContext()));
                 videoModelList.clear();
-                videoModelList.addAll(Utils.getVideos(getContext()));
+                videoModelList.addAll(listAllVideoMolder);
                 return null;
             }
 
@@ -104,8 +149,12 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
 
     @Override
     public void onClick(int index) {
-        Flog.e("index  " + index);
+
         addFragment(checkAction, index);
+
+        if (searchView != null) {
+            searchView.clearFocus();
+        }
     }
 
     @Override

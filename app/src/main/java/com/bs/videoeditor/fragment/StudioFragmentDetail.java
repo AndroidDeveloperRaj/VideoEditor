@@ -38,6 +38,9 @@ import com.bs.videoeditor.utils.FileUtil;
 import com.bs.videoeditor.utils.Flog;
 import com.bs.videoeditor.utils.Utils;
 
+
+import net.protyposis.android.mediaplayer.VideoView;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -225,7 +228,15 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         notifiAdapter();
         hideBottomSheetDialog();
         closeKeyboard(getActivity());
+        checkStateFile();
+    }
 
+    private void checkStateFile() {
+        if (videoModelList.size() > 0) {
+            tvNoVideo.setVisibility(View.GONE);
+        } else {
+            tvNoVideo.setVisibility(View.VISIBLE);
+        }
     }
 
 
@@ -298,6 +309,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         rvVideo.setLayoutManager(new LinearLayoutManager(getContext()));
         rvVideo.setAdapter(videoAdapter);
 
+        checkStateFile();
 
     }
 
@@ -325,7 +337,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
     @Override
     public void onClick(int index) {
         indexOption = index;
-        playVideo();
+        openVideoWith();
     }
 
     @Override
@@ -392,7 +404,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
             uri = Uri.fromFile(new File(videoModel.getPath()));
         }
 
-        intent.setDataAndType((uri), "audio/*");
+        intent.setDataAndType((uri), "video/*");
 
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
@@ -417,7 +429,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
 
     private void detailVideo() {
         VideoModel videoModel = videoModelList.get(indexOption);
-        TextView tvTitle, tvFilePath, tvDuration, tvSize;
+        TextView tvTitle, tvFilePath, tvDuration, tvSize, tvDateAdded;
         DialogDetail dialogDetail = new DialogDetail(getContext());
         dialogDetail.setOnClickBtnOk(v -> dialogDetail.hideDialog());
 
@@ -426,11 +438,12 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         tvTitle = view.findViewById(R.id.tvTitle);
         tvFilePath = view.findViewById(R.id.tvFilePath);
         tvDuration = view.findViewById(R.id.tvDuaration);
+        tvDateAdded = view.findViewById(R.id.tvDateTime);
         tvTitle.setText(getResources().getString(R.string.title_audio) + ": " + videoModel.getNameAudio());
         tvSize.setText(getString(R.string.size) + ": " + Utils.getStringSizeLengthFile(videoModel.getSize()));
         tvFilePath.setText(getResources().getString(R.string.path) + ": " + videoModel.getPath());
         tvDuration.setText(getResources().getString(R.string.duration) + ": " + Utils.convertMillisecond(Long.parseLong(videoModel.getDuration())));
-
+        tvDateAdded.setText(getString(R.string.date_time) + ": " + Utils.convertDate(String.valueOf(videoModel.getDateModifier()), "dd/MM/yyyy HH:mm:ss"));
         hideBottomSheetDialog();
 
     }

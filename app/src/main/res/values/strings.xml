@@ -48,5 +48,8 @@
     <string name="fail_rename">Rename failed!</string>
     <string name="no_audio">Your device don\'t have any audio!</string>
     <string name="you_not_add_music">You have not selected any file audio!</string>
+    <string name="end">End</string>
+    <string name="start">Start</string>
+    <string name="loading">Loading...</string>
 
 </resources>

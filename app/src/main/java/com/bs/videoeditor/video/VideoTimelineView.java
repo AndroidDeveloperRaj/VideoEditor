@@ -67,9 +67,12 @@ public class VideoTimelineView extends View {
         return videoLength;
     }
 
+    private Context context;
+
     private void init(Context context) {
-        lineLeft = getResources().getDrawable(R.drawable.ic_line_left_arrow);
-        lineRight = getResources().getDrawable(R.drawable.ic_line_right_arrow);
+        this.context = context;
+        lineLeft = getResources().getDrawable(R.drawable.a);
+        lineRight = getResources().getDrawable(R.drawable.b);
 
         paint = new Paint();
         paint.setColor(getResources().getColor(R.color.colorAccent));
@@ -391,7 +394,6 @@ public class VideoTimelineView extends View {
         canvas.drawText(VideoUtil.normalizeTime((long) (progressLeft * videoLength)), PixelUtil.dpToPx(getContext(), 30), textHeight - timePaint.getTextSize() / 2, timePaint);
         canvas.drawText(VideoUtil.normalizeTime((long) (progressRight * videoLength)), width + PixelUtil.dpToPx(getContext(), 20), textHeight - timePaint.getTextSize() / 2, timePaint);
         canvas.drawText(VideoUtil.normalizeTime((long) ((progressRight - progressLeft) * videoLength)), getWidth() / 2, textHeight - timePaint.getTextSize() / 2, timePaint);
-
 
     }
 

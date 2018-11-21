@@ -11,6 +11,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.text.format.DateFormat;
 import android.view.inputmethod.InputMethodManager;
 
 import com.bs.videoeditor.model.MusicModel;
@@ -32,6 +33,7 @@ import java.util.regex.Pattern;
 
 public class Utils {
 
+    public static final String CONVERT_LONG_TO_DATE = "dd/MM/yyyy HH:mm:ss";
     private static Pattern pattern = Pattern.compile("time=([\\d\\w:]+)");
     public static final String[] listSpecialCharacter = new String[]{"%", "/", "#", "^", ":", "?", ","};
 
@@ -39,15 +41,18 @@ public class Utils {
         String s = Utils.unAccent(query.toLowerCase());
         List<VideoModel> filteredModelList = new ArrayList<>();
 
-        for (VideoModel audio : videoEnities) {
-            String text = Utils.unAccent(audio.getNameAudio().toLowerCase());
+        for (VideoModel videoModel : videoEnities) {
+            String text = Utils.unAccent(videoModel.getNameAudio().toLowerCase());
             if (text.contains(s)) {
-                filteredModelList.add(audio);
+                filteredModelList.add(videoModel);
             }
         }
         return filteredModelList;
     }
 
+    public static String convertDate(String dateInMilliseconds, String dateFormat) {
+        return DateFormat.format(dateFormat, Long.parseLong(dateInMilliseconds)).toString();
+    }
 
     public static List<MusicModel> getMusicFiles(Context context) {
         List<MusicModel> musicModelList = new ArrayList();
@@ -247,14 +252,16 @@ public class Utils {
                 MediaStore.Video.Media.DURATION,
                 MediaStore.Video.Media.DATA,
                 MediaStore.Video.Media.RESOLUTION,
-                MediaStore.Video.Media.SIZE
+                MediaStore.Video.Media.SIZE,
+                MediaStore.Video.Media.DATE_ADDED
+
         };
 
-        Cursor c = context.getContentResolver().query(uri, m_data, null, null, MediaStore.Video.Media.DATE_ADDED + " DESC ");
+        Cursor c = context.getContentResolver().query(uri, m_data, null, null, MediaStore.Video.Media.DEFAULT_SORT_ORDER);
 
         if (c != null && c.moveToNext()) {
             do {
-                String name, album, artist, path, id, duration, resolution;
+                String name, album, artist, path, id, duration, resolution, dateAdded;
                 long size;
 
                 id = c.getString(c.getColumnIndex(MediaStore.Video.Media._ID));
@@ -265,17 +272,14 @@ public class Utils {
                 duration = c.getString(c.getColumnIndex(MediaStore.Video.Media.DURATION));
                 resolution = c.getString(c.getColumnIndex(MediaStore.Video.Media.RESOLUTION));
                 size = c.getLong(c.getColumnIndex(MediaStore.Video.Media.SIZE));
-                Flog.e(" ssssssssss  " + path + duration);
+                dateAdded = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATE_ADDED));
+
                 try {
-                    if (duration != null && path != null) {
-                        Flog.e(" nottt  " + path + duration);
-                        VideoModel video = new VideoModel(id, name, artist, album, String.valueOf(duration), path, resolution, size);
+                    if (duration != null && path != null && Long.parseLong(duration) > 0) {
+                        VideoModel video = new VideoModel(id, name, artist, album, duration, path, resolution, size, dateAdded + "000");
                         listVideo.add(video);
-                    } else {
-                        Flog.e(" bbbbbbb  " + path + duration);
                     }
                 } catch (Exception e) {
-                    Flog.e(" bbbbbxxxxxxxxxxxbb  " + path + duration);
                     e.printStackTrace();
                 }
 
@@ -298,14 +302,16 @@ public class Utils {
                 MediaStore.Video.Media.DURATION,
                 MediaStore.Video.Media.DATA,
                 MediaStore.Video.Media.RESOLUTION,
-                MediaStore.Video.Media.SIZE
+                MediaStore.Video.Media.SIZE,
+                MediaStore.Video.Media.DATE_ADDED
+
         };
 
         Cursor c = context.getContentResolver().query(uri, m_data, null, null, MediaStore.Video.Media.DATE_ADDED + " DESC ");
 
         if (c != null && c.moveToNext()) {
             do {
-                String name, album, artist, path, id, duration, resolution;
+                String name, album, artist, path, id, duration, resolution, dateAdded;
                 long size;
 
                 id = c.getString(c.getColumnIndex(MediaStore.Video.Media._ID));
@@ -316,9 +322,10 @@ public class Utils {
                 duration = c.getString(c.getColumnIndex(MediaStore.Video.Media.DURATION));
                 resolution = c.getString(c.getColumnIndex(MediaStore.Video.Media.RESOLUTION));
                 size = c.getLong(c.getColumnIndex(MediaStore.Video.Media.SIZE));
+                dateAdded = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATE_ADDED));
                 try {
                     if (duration != null && path != null && path.contains(section)) {
-                        VideoModel video = new VideoModel(id, name, artist, album, String.valueOf(duration), path, resolution, size);
+                        VideoModel video = new VideoModel(id, name, artist, album, String.valueOf(duration), path, resolution, size, dateAdded + "000");
                         listVideo.add(video);
                     }
                 } catch (Exception e) {
@@ -386,6 +393,7 @@ public class Utils {
         }
         return "." + path.substring(lastIndexOf + 1);
     }
+
 
 
     public static String convertMillisecond(long millisecond) {

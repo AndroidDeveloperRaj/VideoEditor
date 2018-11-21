@@ -199,11 +199,11 @@ public class VideoControllerView extends FrameLayout implements View.OnClickList
         this.mMediaController = viewVideoView;
 
         if (mMediaController instanceof VideoView) {
-            VideoView delegate = (VideoView) mMediaController;
-            delegate.setOnCompletionListener(this);
+            VideoView videoView = (VideoView) mMediaController;
+            videoView.setOnCompletionListener(this);
         } else {
-            VideoView delegate = (VideoView) mMediaController;
-            delegate.setOnCompletionListener(this);
+            VideoView videoView = (VideoView) mMediaController;
+            videoView.setOnCompletionListener(this);
         }
     }
 
