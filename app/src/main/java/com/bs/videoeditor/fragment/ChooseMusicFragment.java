@@ -110,7 +110,6 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
 
         ivNext.setOnClickListener(this);
         ivPlay.setOnClickListener(this);
-//        tvAddMusic.setOnClickListener(this);
         ivPrevious.setOnClickListener(this);
 
         hasAudio();

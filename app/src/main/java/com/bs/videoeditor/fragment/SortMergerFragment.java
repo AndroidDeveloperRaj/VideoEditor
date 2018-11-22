@@ -284,7 +284,7 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
         if (videoModelList.size() >= 2) {
 
             String nameDefault = "VM_" + simpleDateFormat.format(System.currentTimeMillis());
-            dialogInputName = new DialogInputName(getContext(), this, nameDefault);
+            dialogInputName = new DialogInputName(getContext(), this, nameDefault,getString(R.string.save));
             dialogInputName.initDialog();
 
         } else {

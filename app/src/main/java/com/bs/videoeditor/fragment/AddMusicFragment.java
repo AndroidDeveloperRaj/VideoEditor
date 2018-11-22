@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bs.videoeditor.R;
@@ -35,6 +36,7 @@ import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.halilibo.bettervideoplayer.BetterVideoCallback;
 import com.halilibo.bettervideoplayer.BetterVideoPlayer;
+import com.halilibo.bettervideoplayer.BetterVideoProgressCallback;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +62,7 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
     private float volumeVideo = 1.0f, volumeMusic = 1.0f;
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
     private DialogInputName dialogInputName;
+    private TextView tvProgressVideo, tvProgressMusic;
 
     public static AddMusicFragment newInstance(Bundle bundle) {
         AddMusicFragment fragment = new AddMusicFragment();
@@ -216,13 +219,30 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
             public void onToggleControls(BetterVideoPlayer player, boolean isShowing) {
 
             }
+
+            @Override
+            public void onSeekbarProgressChanged(int position) {
+                if (mediaPlayer == null) return;
+
+                if (position < mediaPlayer.getDuration()) {
+                    mediaPlayer.seekTo(position);
+                }
+            }
         });
+//        bvp.setProgressCallback(new BetterVideoProgressCallback() {
+//            @Override
+//            public void onVideoProgressUpdate(int position, int duration) {
+//                Flog.e(" preeeeeeeeeeee       " + position + "___" + duration);
+//            }
+//        });
     }
 
     @Override
     public void initViews() {
         ffmpeg = FFmpeg.getInstance(getContext());
         bvp = (BetterVideoPlayer) findViewById(R.id.bvp);
+        tvProgressMusic = (TextView) findViewById(R.id.tv_music_pecent);
+        tvProgressVideo = (TextView) findViewById(R.id.tv_video_pecent);
         sbVolumeVideo = (SeekBar) findViewById(R.id.seekbar_volume);
         sbVolumeMusic = (SeekBar) findViewById(R.id.seekbar_music);
 
@@ -282,7 +302,6 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
     private void addMusic() {
 
-        //stopVideoAudio();
         bvp.pause();
 
         getActivity().getSupportFragmentManager().beginTransaction()
@@ -321,7 +340,7 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
     private void initDialogSaveFile() {
         String defaultName = "VA_" + simpleDateFormat.format(System.currentTimeMillis());
-        dialogInputName = new DialogInputName(getContext(), this, defaultName);
+        dialogInputName = new DialogInputName(getContext(), this, defaultName, getString(R.string.save));
         dialogInputName.initDialog();
     }
 
@@ -337,25 +356,25 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
             case R.id.seekbar_volume:
 
                 volumeVideo = (float) sbVolumeVideo.getProgress() / 100;
+                tvProgressVideo.setText(sbVolumeVideo.getProgress() + "%");
 
                 if (bvp == null) {
                     return;
                 }
 
                 bvp.setVolume(volumeVideo, volumeVideo);
-
                 break;
 
             case R.id.seekbar_music:
 
                 volumeMusic = (float) sbVolumeMusic.getProgress() / 100;
+                tvProgressMusic.setText(sbVolumeMusic.getProgress() + "%");
 
                 if (mediaPlayer == null) {
                     return;
                 }
 
                 mediaPlayer.setVolume(volumeMusic, volumeMusic);
-
                 break;
         }
     }
@@ -385,9 +404,10 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        mediaPlayer.stop();
-        mediaPlayer.reset();
-        mediaPlayer.release();
+//        mediaPlayer.stop();
+//        mediaPlayer.reset();
+//        mediaPlayer.release();
+        mediaPlayer.pause();
     }
 
     @Override
@@ -407,13 +427,13 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
         pathNewFile = pathNewFile + nameFile + getFileExtension(videoModel.getPath());
 
-//        if (true) {
-//            Flog.e(" pathh   " + pathNewFile + "___" + pathMusicAdd + "___" + videoModel.getPath());
-//            return;
-//        }
-//        String command[] = new String[]{"-i", pathMusicAdd, "-i", videoModel.getPath(), "-filter_complex"
-//                , "[0:a]volume=" + volumeVideo + "[a0];[1:a]volume=" + volumeMusic +
-//                "[a1];[a0][a1]amerge,pan=stereo|c0<c0+c2|c1<c1+c3[out]", "-map", "1:v", "-map", "[out]", pathNewFile};
+        File f = new File(pathNewFile);
+        if (f.exists()) {
+            Toast.makeText(getContext(), getString(R.string.name_file_exist), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
         String command[] = new String[]{"-i", videoModel.getPath(), "-i",
                 pathMusicAdd, "-filter_complex", "[0:a]volume=" + volumeVideo + "[a0];[1:a]volume=" + volumeMusic + "[a1];[a0][a1]amix=inputs=2[a]",
                 "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", pathNewFile};

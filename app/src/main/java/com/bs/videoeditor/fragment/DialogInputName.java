@@ -6,6 +6,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bs.videoeditor.R;
@@ -24,12 +25,15 @@ public class DialogInputName extends AbsDialog {
     private Context context;
     private EditText edtNameFile;
     private String nameDefault = null;
+    private String title = null;
+    private TextView tvTitle;
 
-    public DialogInputName(Context context, IInputNameFile callback, String nameDefault) {
+    public DialogInputName(Context context, IInputNameFile callback, String nameDefault, String title) {
         super(context);
         this.context = context;
         this.callback = callback;
         this.nameDefault = nameDefault;
+        this.title = title;
     }
 
     @Override
@@ -39,9 +43,12 @@ public class DialogInputName extends AbsDialog {
 
     public void initDialog() {
         super.initDialog();
+        tvTitle = getView().findViewById(R.id.ss);
+        tvTitle.setText(title);
         edtNameFile = getView().findViewById(R.id.edt_name_file);
         edtNameFile.setText(nameDefault);
         edtNameFile.setSelection(edtNameFile.getText().length());
+
         getView().findViewById(R.id.btn_local_ok).setOnClickListener(v -> applyInput());
         getView().findViewById(R.id.btn_local_cancel).setOnClickListener(v -> cancelInput());
     }
@@ -69,6 +76,4 @@ public class DialogInputName extends AbsDialog {
     private void cancelInput() {
         callback.onCancelSelect();
     }
-
-
 }

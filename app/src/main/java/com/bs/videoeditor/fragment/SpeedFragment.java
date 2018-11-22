@@ -31,6 +31,8 @@ import com.github.hiteshsondhi88.libffmpeg.FFmpeg;
 import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunningException;
 import com.halilibo.bettervideoplayer.BetterVideoCallback;
 import com.halilibo.bettervideoplayer.BetterVideoPlayer;
+import com.xiao.nicevideoplayer.NiceVideoPlayer;
+import com.xiao.nicevideoplayer.TxVideoPlayerController;
 import com.xw.repo.BubbleSeekBar;
 
 
@@ -55,6 +57,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
     private float tempoVideo = 1.0f, ptsVideo = 1.0f;
     private float listTempoAudio[] = new float[]{0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 1.75f, 2.0f};
     private float listPtsVideo[] = new float[]{2.0f, 4 / 3f, 1.0f, 4 / 5f, 4 / 6f, 4 / 7f, 0.5f};
+    private NiceVideoPlayer mNiceVideoPlayer;
 
     @Override
     public void initViews() {
@@ -78,19 +81,6 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
                 .seekStepSection()
                 .touchToSeek()
                 .build();
-
-        videoModel = getArguments().getParcelable(Statistic.VIDEO_MODEL);
-
-        Uri uri = Uri.fromFile(new File(videoModel.getPath()));
-
-        bvp = (BetterVideoPlayer) findViewById(R.id.bvp);
-        bvp.setAutoPlay(false);
-        bvp.setSource(uri);
-        bvp.setHideControlsOnPlay(true);
-        bvp.setBottomProgressBarVisibility(false);
-        bvp.enableSwipeGestures(getActivity().getWindow());
-
-
     }
 
     @Override
@@ -100,8 +90,8 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
     }
 
     private void pauseVideo() {
-        if (bvp != null) {
-            bvp.pause();
+        if (mNiceVideoPlayer.isPlaying()) {
+            mNiceVideoPlayer.pause();
         }
     }
 
@@ -111,7 +101,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
         String defaultName = "VS_" + simpleDateFormat.format(System.currentTimeMillis());
 
-        dialogInputName = new DialogInputName(getContext(), this, defaultName);
+        dialogInputName = new DialogInputName(getContext(), this, defaultName, getString(R.string.save));
 
         dialogInputName.initDialog();
 
@@ -142,6 +132,23 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         videoModel = getArguments().getParcelable(Statistic.VIDEO_MODEL);
         getToolbar().setTitle(getString(R.string.speed));
         getToolbar().getMenu().findItem(R.id.item_save).setOnMenuItemClickListener(menuItem -> dialogLocalSave());
+        initVideo();
+    }
+
+    private String listStringToVideo[];
+
+    private void initVideo() {
+        listStringToVideo = new String[]{getString(R.string.replay), getString(R.string.error), getString(R.string.prepare)};
+
+        mNiceVideoPlayer = (NiceVideoPlayer) findViewById(R.id.nice_video_player);
+        mNiceVideoPlayer.setUp(videoModel.getPath(), null);
+        mNiceVideoPlayer.setPlayerType(NiceVideoPlayer.TYPE_IJK); // IjkPlayer or MediaPlayer
+
+        TxVideoPlayerController controller = new TxVideoPlayerController(getContext(), listStringToVideo);
+        controller.setTitle("");
+
+        mNiceVideoPlayer.setController(controller);
+        mNiceVideoPlayer.start();
     }
 
     @Override
@@ -181,22 +188,21 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         String sSpeed = "[0:v]setpts=" + ptsVideo + "*PTS[v];[0:a]atempo=" + tempoVideo + "[a]";
 
         String[] complexCommand = {"-i", videoModel.getPath(), "-filter_complex", sSpeed, "-map", "[v]", "-map", "[a]", "-b:v", "2097k", "-r", "60", "-vcodec", "mpeg4", newPath};
-
-        Bundle bundle = new Bundle();
-        bundle.putStringArray(Statistic.ARRAY_COMMAND, complexCommand);
-        bundle.putString(Statistic.PATH_VIDEO, newPath);
-        bundle.putString(Statistic.TITLE_VIDEO, nameFile);
-        bundle.putParcelable(Statistic.VIDEO_MODEL, videoModel);
-
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .add(R.id.view_container1, ProgressSavingFragment.newInstance(bundle))
-                .addToBackStack(null)
-                .commit();
-
-        if (true) {
-            return;
-        }
-
+//
+//        Bundle bundle = new Bundle();
+//        bundle.putStringArray(Statistic.ARRAY_COMMAND, complexCommand);
+//        bundle.putString(Statistic.PATH_VIDEO, newPath);
+//        bundle.putString(Statistic.TITLE_VIDEO, nameFile);
+//        bundle.putParcelable(Statistic.VIDEO_MODEL, videoModel);
+//
+//        getActivity().getSupportFragmentManager().beginTransaction()
+//                .add(R.id.view_container1, ProgressSavingFragment.newInstance(bundle))
+//                .addToBackStack(null)
+//                .commit();
+//
+//        if (true) {
+//            return;
+//        }
 
         initDialogProgress();
 
@@ -312,6 +318,9 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         tvShowSpeed.setText(listTempoAudio[progress - 1] + "x");
         tempoVideo = listTempoAudio[progress - 1];
         ptsVideo = listPtsVideo[progress - 1];
+        if (mNiceVideoPlayer.isPlaying()) {
+            mNiceVideoPlayer.setSpeed(listTempoAudio[progress - 1]);
+        }
     }
 
     @Override

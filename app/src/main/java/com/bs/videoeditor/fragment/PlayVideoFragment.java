@@ -107,6 +107,11 @@ public class PlayVideoFragment extends AbsFragment {
             public void onToggleControls(BetterVideoPlayer player, boolean isShowing) {
 
             }
+
+            @Override
+            public void onSeekbarProgressChanged(int position) {
+
+            }
         });
 
         loadAdsNative();

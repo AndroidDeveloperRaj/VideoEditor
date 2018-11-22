@@ -48,4 +48,9 @@ public class EmptyCallback implements BetterVideoCallback {
     public void onToggleControls(BetterVideoPlayer player, boolean isShowing) {
 
     }
+
+    @Override
+    public void onSeekbarProgressChanged(int position) {
+
+    }
 }

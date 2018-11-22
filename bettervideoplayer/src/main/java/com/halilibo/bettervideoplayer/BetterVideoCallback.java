@@ -67,4 +67,9 @@ public interface BetterVideoCallback {
      * @param isShowing : True if controls are visible.
      */
     void onToggleControls(BetterVideoPlayer player, boolean isShowing);
+
+    /*
+    * Called when user changed progress video with seekbar
+    * */
+    void onSeekbarProgressChanged(int position);
 }

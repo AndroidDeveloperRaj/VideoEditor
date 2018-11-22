@@ -45,9 +45,6 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
     private VideoControllerView videoControllerView;
     private String pathOldFile = null, pathNewFile = null;
     private FFmpeg ffmpeg;
-    private AlertDialog.Builder builder;
-    private AlertDialog alertDialog;
-    private EditText edtNameFile;
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
     private VideoModel videoModel;
     private ProgressDialog progressDialog;
@@ -97,13 +94,18 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
 
         pathNewFile = pathNewFile + fileName + getFileExtension(pathOldFile);
 
+        File f = new File(pathNewFile);
+        if (f.exists()) {
+            Toast.makeText(getContext(), getString(R.string.name_file_exist), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         startTime = Math.round(videoTimelineView.getLeftProgress() * videoTimelineView.getVideoLength() / 1000);
         endTime = Math.round(videoTimelineView.getRightProgress() * videoTimelineView.getVideoLength() / 1000);
         durationAudio = endTime - startTime;
 
         String command[] = new String[]{"-i", pathOldFile, "-ss", startTime + "", "-t", String.valueOf(durationAudio), "-c", "copy", pathNewFile};
 
-        hideDialogSave();
         initDialogProgress();
         execFFmpegBinary(command, pathNewFile, fileName);
 
@@ -113,7 +115,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
 
     private boolean dialogSelectLocalSaveFile() {
         String defaultName = "VC_" + simpleDateFormat.format(System.currentTimeMillis());
-        dialogInputName = new DialogInputName(getContext(), this, defaultName);
+        dialogInputName = new DialogInputName(getContext(), this, defaultName, getString(R.string.save));
         dialogInputName.initDialog();
         return true;
     }
@@ -187,9 +189,6 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
         if (progressDialog != null) {
             progressDialog.dismiss();
         }
-
-        hideDialogSave();
-
     }
 
     private void execFFmpegBinary(final String[] command, String path, String title) {
@@ -255,12 +254,6 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
         if (videoView != null && null != videoControllerView) {
             videoView.pause();
             videoControllerView.goPauseMode();
-        }
-    }
-
-    private void hideDialogSave() {
-        if (alertDialog != null) {
-            alertDialog.dismiss();
         }
     }
 

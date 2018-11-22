@@ -19,7 +19,7 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="@dimen/_8sdp"
+        android:layout_marginBottom="@dimen/_12sdp"
         android:background="@color/colorPrimary"
         android:padding="@dimen/_8sdp"
         app:layout_constraintBottom_toTopOf="@+id/video_timeline"
@@ -55,7 +55,7 @@
         android:id="@+id/video_timeline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/_16sdp"
-
+        android:layout_marginBottom="@dimen/_24sdp"
         app:layout_constraintBottom_toBottomOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

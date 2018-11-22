@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/VideoEditor.iml" filepath="$PROJECT_DIR$/VideoEditor.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/bettervideoplayer/bettervideoplayer.iml" filepath="$PROJECT_DIR$/bettervideoplayer/bettervideoplayer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/nicevideoplayer/nicevideoplayer.iml" filepath="$PROJECT_DIR$/nicevideoplayer/nicevideoplayer.iml" />
     </modules>
   </component>
 </project>

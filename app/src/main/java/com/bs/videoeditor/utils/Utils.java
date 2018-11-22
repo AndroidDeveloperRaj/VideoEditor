@@ -273,7 +273,7 @@ public class Utils {
                 resolution = c.getString(c.getColumnIndex(MediaStore.Video.Media.RESOLUTION));
                 size = c.getLong(c.getColumnIndex(MediaStore.Video.Media.SIZE));
                 dateAdded = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATE_ADDED));
-
+                Flog.e(" path       " + path);
                 try {
                     if (duration != null && path != null && Long.parseLong(duration) > 0) {
                         VideoModel video = new VideoModel(id, name, artist, album, duration, path, resolution, size, dateAdded + "000");
@@ -393,7 +393,6 @@ public class Utils {
         }
         return "." + path.substring(lastIndexOf + 1);
     }
-
 
 
     public static String convertMillisecond(long millisecond) {

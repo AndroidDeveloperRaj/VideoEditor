@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">NiceVideoPlayer</string>
+    <string name="retry">Retry</string>
+    <string name="error">Error!</string>
+</resources>
