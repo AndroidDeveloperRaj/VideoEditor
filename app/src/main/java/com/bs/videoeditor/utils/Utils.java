@@ -291,7 +291,23 @@ public class Utils {
         return listVideo;
     }
 
-    public static List<VideoModel> getStudioVideos(Context context, String section) {
+    public static List<VideoModel> getStudioVideos(Context context, String section, int sortOrder) {
+        String sort = SortOrder.SongSortOrder.SONG_A_Z;
+
+        switch (sortOrder) {
+            case SortOrder.ID_SONG_A_Z:
+                sort = SortOrder.SongSortOrder.SONG_A_Z;
+                break;
+
+            case SortOrder.ID_SONG_Z_A:
+                sort = SortOrder.SongSortOrder.SONG_Z_A;
+                break;
+
+            case SortOrder.ID_SONG_DATE_ADDED:
+                sort = SortOrder.SongSortOrder.SONG_DATE;
+                break;
+        }
+
         Uri uri = android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         Uri ART_CONTENT_URI = Uri.parse("content://media/external/audio/albumart");
         List<VideoModel> listVideo = new ArrayList<>();
@@ -307,7 +323,7 @@ public class Utils {
 
         };
 
-        Cursor c = context.getContentResolver().query(uri, m_data, null, null, MediaStore.Video.Media.DATE_ADDED + " DESC ");
+        Cursor c = context.getContentResolver().query(uri, m_data, null, null, sort);
 
         if (c != null && c.moveToNext()) {
             do {

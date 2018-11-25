@@ -12,6 +12,7 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,12 +20,17 @@ import com.bs.videoeditor.R;
 import com.bs.videoeditor.adapter.StudioAdapter;
 import com.bs.videoeditor.statistic.Statistic;
 import com.bs.videoeditor.utils.Flog;
+import com.bs.videoeditor.utils.SharedPrefs;
+import com.bs.videoeditor.utils.SortOrder;
 import com.bs.videoeditor.utils.Utils;
 
 import static com.bs.videoeditor.statistic.Statistic.INDEX_ADD_MUSIC;
 import static com.bs.videoeditor.statistic.Statistic.INDEX_CUTTER;
 import static com.bs.videoeditor.statistic.Statistic.INDEX_MERGER;
 import static com.bs.videoeditor.statistic.Statistic.INDEX_SPEED;
+import static com.bs.videoeditor.utils.SortOrder.ID_SONG_A_Z;
+import static com.bs.videoeditor.utils.SortOrder.ID_SONG_DATE_ADDED;
+import static com.bs.videoeditor.utils.SortOrder.ID_SONG_Z_A;
 
 public class StudioFragment extends AbsFragment {
     public static final int CUTTER = 0;
@@ -108,6 +114,35 @@ public class StudioFragment extends AbsFragment {
             Utils.closeKeyboard(getActivity());
         });
         searchAudio();
+        setUpSortOrderMenu(getToolbar().getMenu().findItem(R.id.action_sort_order).getSubMenu());
+    }
+
+    private void setUpSortOrderMenu(@NonNull SubMenu sortOrderMenu) {
+
+        int currentSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT, Integer.class, ID_SONG_A_Z);
+
+        sortOrderMenu.clear();
+
+        sortOrderMenu.add(0, R.id.action_song_sort_order_asc, 0, R.string.sort_order_a_z)
+                .setChecked(currentSortOrder == ID_SONG_A_Z);
+        sortOrderMenu.add(0, R.id.action_song_sort_order_desc, 1, R.string.sort_order_z_a)
+                .setChecked(currentSortOrder == ID_SONG_Z_A);
+        sortOrderMenu.add(0, R.id.action_song_sort_order_year, 2, R.string.sort_date_added)
+                .setChecked(currentSortOrder == ID_SONG_DATE_ADDED);
+
+        sortOrderMenu.setGroupCheckable(0, true, true);
+
+        sortOrderMenu.findItem(R.id.action_song_sort_order_asc).setOnMenuItemClickListener(item -> saveIdSortOrder(ID_SONG_A_Z));
+        sortOrderMenu.findItem(R.id.action_song_sort_order_desc).setOnMenuItemClickListener(item -> saveIdSortOrder(ID_SONG_Z_A));
+        sortOrderMenu.findItem(R.id.action_song_sort_order_year).setOnMenuItemClickListener(item -> saveIdSortOrder(ID_SONG_DATE_ADDED));
+
+    }
+
+    private boolean saveIdSortOrder(int id) {
+        Flog.e("xxxxxxx    idddddd    "+ id);
+        SharedPrefs.getInstance().put(Statistic.SORT_ORDER_CURRENT, id);
+        getContext().sendBroadcast(new Intent(Statistic.UPDATE_CHOOSE_SORT_ORDER).putExtra(Statistic.SORT_ORDER_CURRENT, id));
+        return true;
     }
 
     private void searchAudio() {

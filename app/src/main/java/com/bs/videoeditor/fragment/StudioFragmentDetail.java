@@ -36,6 +36,8 @@ import com.bs.videoeditor.model.VideoModel;
 import com.bs.videoeditor.statistic.Statistic;
 import com.bs.videoeditor.utils.FileUtil;
 import com.bs.videoeditor.utils.Flog;
+import com.bs.videoeditor.utils.SharedPrefs;
+import com.bs.videoeditor.utils.SortOrder;
 import com.bs.videoeditor.utils.Utils;
 
 
@@ -84,6 +86,11 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
                     }
 
                     actionMode.finish();
+                    break;
+
+                case Statistic.UPDATE_CHOOSE_SORT_ORDER:
+                    mSortOrder = intent.getIntExtra(Statistic.SORT_ORDER_CURRENT, SortOrder.ID_SONG_A_Z);
+                    updateList();
                     break;
             }
 
@@ -220,7 +227,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
 
     private void updateList() {
         listAllVideo.clear();
-        listAllVideo.addAll(Utils.getStudioVideos(getContext(), checkCurrentFragment));
+        listAllVideo.addAll(Utils.getStudioVideos(getContext(), checkCurrentFragment, mSortOrder));
         videoModelList.clear();
         videoModelList.addAll(listAllVideo);
         videoAdapter.notifyDataSetChanged();
@@ -285,10 +292,12 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         }
     }
 
+    private int mSortOrder = 0;
+
     @Override
     public void initViews() {
 
-        initActions();
+        mSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT, Integer.class, 0);
 
         checkCurrentFragment = getArguments().getString(Statistic.CHECK_STUDIO_FRAGMENT, null);
         if (checkCurrentFragment == null) {
@@ -296,7 +305,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         }
 
         listAllVideo.clear();
-        listAllVideo.addAll(Utils.getStudioVideos(getContext(), checkCurrentFragment));
+        listAllVideo.addAll(Utils.getStudioVideos(getContext(), checkCurrentFragment, mSortOrder));
 
         videoModelList.clear();
         videoModelList.addAll(listAllVideo);
@@ -310,12 +319,13 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         rvVideo.setAdapter(videoAdapter);
 
         checkStateFile();
-
+        initActions();
     }
 
     private void initActions() {
         IntentFilter it = new IntentFilter();
         it.addAction(Statistic.CLEAR_ACTION_MODE);
+        it.addAction(Statistic.UPDATE_CHOOSE_SORT_ORDER);
         getContext().registerReceiver(receiver, it);
     }
 
@@ -422,7 +432,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
     private DialogInputName dialogInputName;
 
     private void renameVideo() {
-        dialogInputName = new DialogInputName(getContext(), this, "",getString(R.string.rename));
+        dialogInputName = new DialogInputName(getContext(), this, "", getString(R.string.rename));
         dialogInputName.initDialog();
         hideBottomSheetDialog();
     }
