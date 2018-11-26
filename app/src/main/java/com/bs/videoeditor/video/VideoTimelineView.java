@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.bs.videoeditor.R;
+import com.bs.videoeditor.utils.Flog;
 import com.bs.videoeditor.utils.PixelUtil;
 import com.bs.videoeditor.utils.VideoUtil;
 
@@ -130,7 +131,7 @@ public class VideoTimelineView extends View {
         float x = event.getX();
         float y = event.getY();
 
-        int width = getMeasuredWidth() - PixelUtil.dpToPx(getContext(), 32);
+        int width = getMeasuredWidth() - PixelUtil.dpToPx(getContext(), 46);
         int startX = (int) (width * progressLeft) + PixelUtil.dpToPx(getContext(), 16);
 //        int startX = (int) (width * progressLeft);
 
@@ -317,9 +318,9 @@ public class VideoTimelineView extends View {
     protected void onDraw(Canvas canvas) {
         int width = getMeasuredWidth() - PixelUtil.dpToPx(getContext(), 46);
 
-        Log.d("ccccccc", " " + width);
+        Flog.e("ccccccc" + " " + width);
         int startX = (int) (width * progressLeft) + PixelUtil.dpToPx(getContext(), 16);
-        int endX = (int) (width * progressRight) + PixelUtil.dpToPx(getContext(), 16);
+        int endX = (int) (width * progressRight) + PixelUtil.dpToPx(getContext(), 16) + 16;
 
         canvas.save();
         canvas.clipRect(PixelUtil.dpToPx(getContext(), 16), rectYTop, width + PixelUtil.dpToPx(getContext(), 20), rectYBottom + PixelUtil.dpToPx(getContext(), 2));
@@ -390,8 +391,8 @@ public class VideoTimelineView extends View {
         //draw time
         Log.d("xxxxxxx", " " + PixelUtil.dpToPx(getContext(), 40) + "__" + width + PixelUtil.dpToPx(getContext(), 20));
 
-        canvas.drawText(VideoUtil.normalizeTime((long) (progressLeft * videoLength)), PixelUtil.dpToPx(getContext(), 30), textHeight - timePaint.getTextSize() / 2, timePaint);
-        canvas.drawText(VideoUtil.normalizeTime((long) (progressRight * videoLength)), width + PixelUtil.dpToPx(getContext(), 20), textHeight - timePaint.getTextSize() / 2, timePaint);
+        canvas.drawText("Start: " + VideoUtil.normalizeTime((long) (progressLeft * videoLength)), PixelUtil.dpToPx(getContext(), 40), textHeight - timePaint.getTextSize() / 2, timePaint);
+        canvas.drawText(VideoUtil.normalizeTime((long) (progressRight * videoLength)), width + PixelUtil.dpToPx(getContext(), 16), textHeight - timePaint.getTextSize() / 2, timePaint);
         canvas.drawText(VideoUtil.normalizeTime((long) ((progressRight - progressLeft) * videoLength)), getWidth() / 2, textHeight - timePaint.getTextSize() / 2, timePaint);
 
     }

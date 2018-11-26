@@ -22,6 +22,7 @@ public final class SortOrder {
     public static final int ID_SONG_A_Z = 0;
     public static final int ID_SONG_Z_A = 1;
     public static final int ID_SONG_DATE_ADDED = 2;
+    public static final int ID_SONG_DATE_ADDED_DESCENDING = 3;
 
     /**
      * This class is never instantiated
@@ -40,7 +41,9 @@ public final class SortOrder {
         String SONG_Z_A = SONG_A_Z + " DESC";
 
         /* Song sort order date added */
-        String SONG_DATE = MediaStore.Video.Media.DATE_ADDED + " DESC";
+        String SONG_DATE = MediaStore.Video.Media.DATE_ADDED + " ASC";
+        /* Song sort order date added DESC */
+        String SONG_DATE_DESC = MediaStore.Video.Media.DATE_ADDED + " DESC";
 
     }
 }

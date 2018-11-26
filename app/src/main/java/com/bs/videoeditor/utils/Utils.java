@@ -50,6 +50,19 @@ public class Utils {
         return filteredModelList;
     }
 
+    public static List<MusicModel> filterSong(List<MusicModel> musicModels, String query) {
+        String s = Utils.unAccent(query.toLowerCase());
+        List<MusicModel> filteredModelList = new ArrayList<>();
+
+        for (MusicModel videoModel : musicModels) {
+            String text = Utils.unAccent(videoModel.getTitle().toLowerCase());
+            if (text.contains(s)) {
+                filteredModelList.add(videoModel);
+            }
+        }
+        return filteredModelList;
+    }
+
     public static String convertDate(String dateInMilliseconds, String dateFormat) {
         return DateFormat.format(dateFormat, Long.parseLong(dateInMilliseconds)).toString();
     }
@@ -241,7 +254,29 @@ public class Utils {
         return 0;
     }
 
-    public static List<VideoModel> getVideos(Context context) {
+    public static List<VideoModel> getVideos(Context context, int sortOrder, String removeSpeedVideos, boolean isGetVideosSpeed) {
+
+        String sort = SortOrder.SongSortOrder.SONG_A_Z;
+
+        switch (sortOrder) {
+            case SortOrder.ID_SONG_A_Z:
+                sort = SortOrder.SongSortOrder.SONG_A_Z;
+                break;
+
+            case SortOrder.ID_SONG_Z_A:
+                sort = SortOrder.SongSortOrder.SONG_Z_A;
+                break;
+
+            case SortOrder.ID_SONG_DATE_ADDED:
+                sort = SortOrder.SongSortOrder.SONG_DATE;
+                break;
+
+            case SortOrder.ID_SONG_DATE_ADDED_DESCENDING:
+                sort = SortOrder.SongSortOrder.SONG_DATE_DESC;
+                break;
+        }
+
+
         Uri uri = android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         Uri ART_CONTENT_URI = Uri.parse("content://media/external/audio/albumart");
         List<VideoModel> listVideo = new ArrayList<>();
@@ -257,7 +292,7 @@ public class Utils {
 
         };
 
-        Cursor c = context.getContentResolver().query(uri, m_data, null, null, MediaStore.Video.Media.DEFAULT_SORT_ORDER);
+        Cursor c = context.getContentResolver().query(uri, m_data, null, null, sort);
 
         if (c != null && c.moveToNext()) {
             do {
@@ -277,7 +312,13 @@ public class Utils {
                 try {
                     if (duration != null && path != null && Long.parseLong(duration) > 0) {
                         VideoModel video = new VideoModel(id, name, artist, album, duration, path, resolution, size, dateAdded + "000");
-                        listVideo.add(video);
+                        if (isGetVideosSpeed) {
+                            listVideo.add(video);
+                        } else {
+                            if (removeSpeedVideos != null && !path.contains(removeSpeedVideos)) {
+                                listVideo.add(video);
+                            }
+                        }
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -305,6 +346,10 @@ public class Utils {
 
             case SortOrder.ID_SONG_DATE_ADDED:
                 sort = SortOrder.SongSortOrder.SONG_DATE;
+                break;
+
+            case SortOrder.ID_SONG_DATE_ADDED_DESCENDING:
+                sort = SortOrder.SongSortOrder.SONG_DATE_DESC;
                 break;
         }
 

@@ -44,7 +44,7 @@ import java.util.Locale;
  * Created by Hung on 11/15/2018.
  */
 
-public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs.videoeditor.custom.BubbleSeekBar.OnProgressChangedListener {
+public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs.videoeditor.custom.BubbleSeekBar.OnProgressChangedListener, NiceVideoPlayer.INiceVideoPlayerCallback {
     private DialogInputName dialogInputName;
     private FFmpeg ffmpeg;
     private VideoModel videoModel;
@@ -81,6 +81,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
                 .seekStepSection()
                 .touchToSeek()
                 .build();
+
     }
 
     @Override
@@ -94,6 +95,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
             mNiceVideoPlayer.pause();
         }
     }
+
 
     private boolean dialogLocalSave() {
 
@@ -133,22 +135,27 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         getToolbar().setTitle(getString(R.string.speed));
         getToolbar().getMenu().findItem(R.id.item_save).setOnMenuItemClickListener(menuItem -> dialogLocalSave());
         initVideo();
+        Flog.e("xxx     inittttttttttttttttttt");
     }
 
     private String listStringToVideo[];
 
     private void initVideo() {
-        listStringToVideo = new String[]{getString(R.string.replay), getString(R.string.error), getString(R.string.prepare)};
 
-        mNiceVideoPlayer = (NiceVideoPlayer) findViewById(R.id.nice_video_player);
-        mNiceVideoPlayer.setUp(videoModel.getPath(), null);
-        mNiceVideoPlayer.setPlayerType(NiceVideoPlayer.TYPE_IJK); // IjkPlayer or MediaPlayer
+        listStringToVideo = new String[]{getString(R.string.replay), getString(R.string.error), getString(R.string.prepare)};
 
         TxVideoPlayerController controller = new TxVideoPlayerController(getContext(), listStringToVideo);
         controller.setTitle("");
+        controller.setLenght(Long.parseLong(videoModel.getDuration()));
 
+        mNiceVideoPlayer = (NiceVideoPlayer) findViewById(R.id.nice_video_player);
+        mNiceVideoPlayer.setUp(videoModel.getPath(), null);
+        mNiceVideoPlayer.setUpListener(this);
+        mNiceVideoPlayer.setPlayerType(NiceVideoPlayer.TYPE_IJK); // IjkPlayer or MediaPlayer
         mNiceVideoPlayer.setController(controller);
+        mNiceVideoPlayer.continueFromLastPosition(true);
         mNiceVideoPlayer.start();
+        // mNiceVideoPlayer.start(0);
     }
 
     @Override
@@ -187,7 +194,8 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
         String sSpeed = "[0:v]setpts=" + ptsVideo + "*PTS[v];[0:a]atempo=" + tempoVideo + "[a]";
 
-        String[] complexCommand = {"-i", videoModel.getPath(), "-filter_complex", sSpeed, "-map", "[v]", "-map", "[a]", "-b:v", "2097k", "-r", "60", "-vcodec", "mpeg4", newPath};
+        //String[] complexCommand = {"-i", videoModel.getPath(), "-filter_complex", sSpeed, "-map", "[v]", "-map", "[a]", "-b:v", "2097k", "-r", "60", "-vcodec", "mpeg4", newPath};
+        String[] complexCommand = {"-i", videoModel.getPath(), "-filter_complex", sSpeed, "-map", "[v]", "-map", "[a]", newPath};
 //
 //        Bundle bundle = new Bundle();
 //        bundle.putStringArray(Statistic.ARRAY_COMMAND, complexCommand);
@@ -295,6 +303,13 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         }
     }
 
+    @Override
+    public void onDestroy() {
+        if (mNiceVideoPlayer != null) {
+
+        }
+        super.onDestroy();
+    }
 
     @Override
     public void onCancelSelect() {
@@ -313,12 +328,15 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         Toast.makeText(getContext(), getString(R.string.name_file_can_not_contain_character), Toast.LENGTH_SHORT).show();
     }
 
+
     @Override
     public void onProgressChanged(com.bs.videoeditor.custom.BubbleSeekBar bubbleSeekBar, int progress, float progressFloat, boolean fromUser) {
         tvShowSpeed.setText(listTempoAudio[progress - 1] + "x");
         tempoVideo = listTempoAudio[progress - 1];
         ptsVideo = listPtsVideo[progress - 1];
+        Flog.e("xxxxxx  changeeeeeeeeeeeeee");
         if (mNiceVideoPlayer.isPlaying()) {
+            Flog.e("xxxxxx  playing");
             mNiceVideoPlayer.setSpeed(listTempoAudio[progress - 1]);
         }
     }
@@ -331,5 +349,11 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
     @Override
     public void getProgressOnFinally(com.bs.videoeditor.custom.BubbleSeekBar bubbleSeekBar, int progress, float progressFloat, boolean fromUser) {
 
+    }
+
+    @Override
+    public void onRestart() {
+        Flog.e("xxxxxx        tempooooooooooo     " + tempoVideo);
+        mNiceVideoPlayer.setSpeed(tempoVideo);
     }
 }

@@ -18,6 +18,7 @@ import com.bs.videoeditor.utils.Utils;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +34,12 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
         this.context = context;
         this.musicModelList = musicModels;
         this.callback = callback;
+    }
+
+    public void setFilter(List<MusicModel> list) {
+        musicModelList = new ArrayList<>();
+        musicModelList = list;
+        notifyDataSetChanged();
     }
 
     @NonNull

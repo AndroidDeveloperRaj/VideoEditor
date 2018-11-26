@@ -1,6 +1,7 @@
 package com.bs.videoeditor.fragment;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +12,7 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -22,12 +24,19 @@ import com.bs.videoeditor.adapter.VideoAdapter;
 import com.bs.videoeditor.model.VideoModel;
 import com.bs.videoeditor.statistic.Statistic;
 import com.bs.videoeditor.utils.Flog;
+import com.bs.videoeditor.utils.SharedPrefs;
+import com.bs.videoeditor.utils.SortOrder;
 import com.bs.videoeditor.utils.Utils;
 import com.vlonjatg.progressactivity.ProgressConstraintLayout;
 import com.vlonjatg.progressactivity.ProgressRelativeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.bs.videoeditor.utils.SortOrder.ID_SONG_A_Z;
+import static com.bs.videoeditor.utils.SortOrder.ID_SONG_DATE_ADDED;
+import static com.bs.videoeditor.utils.SortOrder.ID_SONG_DATE_ADDED_DESCENDING;
+import static com.bs.videoeditor.utils.SortOrder.ID_SONG_Z_A;
 
 
 public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemSelected {
@@ -37,8 +46,9 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     private RecyclerView rvVideo;
     private TextView tvNoVideo;
     private String listTitle[];
+    private boolean isGetVideosSpeed = true;
 
-    private int checkAction = 0;
+    private int mCheckAction = 0; // action is check this fragment choose video is fragment cutter == 0,addmusic == 2,speed ==1
 
     public static ListVideoFragment newInstance(Bundle bundle) {
         Bundle args = new Bundle();
@@ -58,7 +68,6 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
         rvVideo.setHasFixedSize(true);
         rvVideo.setLayoutManager(new LinearLayoutManager(getContext()));
         rvVideo.setAdapter(videoAdapter);
-
 
     }
 
@@ -100,17 +109,46 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     public void initToolbar() {
         super.initToolbar();
 
-        checkAction = getArguments().getInt(Statistic.ACTION, 0);
+        mSortOrderId = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT_CHOOSE_VIDEO, Integer.class, SortOrder.ID_SONG_A_Z);
+        mCheckAction = getArguments().getInt(Statistic.ACTION, 0);
+
+        if (mCheckAction == 1) {
+            isGetVideosSpeed = false;
+        }
 
         listTitle = new String[]{getString(R.string.cutter),
                 getString(R.string.speed),
                 getString(R.string.merger),
                 getString(R.string.add_music)};
 
-        getToolbar().setTitle(listTitle[checkAction]);
+        getToolbar().setTitle(listTitle[mCheckAction]);
         getToolbar().getMenu().clear();
         getToolbar().inflateMenu(R.menu.menu_search1);
         searchAudio(getToolbar());
+
+        setUpSortOrderMenu();
+    }
+
+    private void setUpSortOrderMenu() {
+        int currentSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT_CHOOSE_VIDEO, Integer.class, ID_SONG_A_Z);
+        getToolbar().getMenu().setGroupCheckable(0, true, true);
+        getToolbar().getMenu().findItem(R.id.item_a_z).setChecked(currentSortOrder == ID_SONG_A_Z);
+        getToolbar().getMenu().findItem(R.id.item_z_a).setChecked(currentSortOrder == ID_SONG_Z_A);
+        getToolbar().getMenu().findItem(R.id.item_date_ascending).setChecked(currentSortOrder == ID_SONG_DATE_ADDED);
+        getToolbar().getMenu().findItem(R.id.item_date_descending).setChecked(currentSortOrder == ID_SONG_DATE_ADDED_DESCENDING);
+        getToolbar().getMenu().findItem(R.id.item_a_z).setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_A_Z, menuItem));
+        getToolbar().getMenu().findItem(R.id.item_z_a).setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_Z_A, menuItem));
+        getToolbar().getMenu().findItem(R.id.item_date_ascending).setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_DATE_ADDED, menuItem));
+        getToolbar().getMenu().findItem(R.id.item_date_descending).setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_DATE_ADDED_DESCENDING, menuItem));
+    }
+
+    private boolean saveIdSortOrder(int id, @NonNull MenuItem menuItem) {
+        Flog.e(" currrrrrrrrrrr id " + id);
+        mSortOrderId = id;
+        loadVideo();
+        menuItem.setChecked(true);
+        SharedPrefs.getInstance().put(Statistic.SORT_ORDER_CURRENT_CHOOSE_VIDEO, id);
+        return true;
     }
 
     private void isHasVideo() {
@@ -121,12 +159,14 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
         tvNoVideo.setVisibility(View.GONE);
     }
 
+    private int mSortOrderId = SortOrder.ID_SONG_A_Z;
+
     private void loadVideo() {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
                 listAllVideoMolder.clear();
-                listAllVideoMolder.addAll(Utils.getVideos(getContext()));
+                listAllVideoMolder.addAll(Utils.getVideos(getContext(), mSortOrderId, Statistic.DIR_APP + Statistic.DIR_SPEED, true));
                 videoModelList.clear();
                 videoModelList.addAll(listAllVideoMolder);
                 return null;
@@ -150,7 +190,7 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     @Override
     public void onClick(int index) {
 
-        addFragment(checkAction, index);
+        addFragment(mCheckAction, index);
 
         if (searchView != null) {
             searchView.clearFocus();

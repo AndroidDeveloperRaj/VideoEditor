@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,7 +65,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     private Uri mRecordingUri;
     private TextView tvNameSong;
     private RangeSeekBar rangeSeekbar;
-
+    private SearchView searchView;
     private MusicModel selectedSong;
     private Toolbar toolbar;
     private ImageView ivPrevious, ivNext, ivPlay;
@@ -78,6 +79,8 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     private boolean isOnPause = false;
     private Handler handler;
     private TextView tvNoAudio;
+    private List<MusicModel> listAllSong = new ArrayList<>();
+    private View viewPlay;
 
     public static ChooseMusicFragment newInstance() {
         Bundle args = new Bundle();
@@ -91,8 +94,11 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
 
         ffmpeg = FFmpeg.getInstance(getContext());
 
-        musicModelList = Utils.getMusicFiles(getContext());
+        listAllSong.clear();
+        listAllSong.addAll(Utils.getMusicFiles(getContext()));
 
+        musicModelList.clear();
+        musicModelList.addAll(listAllSong);
         musicAdapter = new MusicAdapter(getContext(), musicModelList, this);
 
         rvAudio = (RecyclerView) findViewById(R.id.rvMusicList);
@@ -107,6 +113,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
         tvAddMusic = (TextView) findViewById(R.id.tv_add_music);
         tvNameSong = (TextView) findViewById(R.id.tv_name_song);
         rangeSeekbar = (RangeSeekBar) findViewById(R.id.rangeSeekbar);
+        viewPlay = findViewById(R.id.lnView);
 
         ivNext.setOnClickListener(this);
         ivPlay.setOnClickListener(this);
@@ -131,7 +138,33 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     @Override
     public void initToolbar() {
         super.initToolbar();
-        getToolbar().getMenu().findItem(R.id.item_save).setOnMenuItemClickListener(menuItem -> addMusic());
+        getToolbar().getMenu().clear();
+        getToolbar().inflateMenu(R.menu.menu_select_multi_song);
+        getToolbar().getMenu().findItem(R.id.item_done).setOnMenuItemClickListener(menuItem -> addMusic());
+        searchAudio(getToolbar());
+    }
+
+    private void searchAudio(Toolbar toolbar) {
+        MenuItem menuItem = toolbar.getMenu().findItem(R.id.item_search);
+        searchView = (SearchView) menuItem.getActionView();
+        searchView.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                // actionSearch(s);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                actionSearch(s);
+                return true;
+            }
+        });
+    }
+
+    private void actionSearch(String s) {
+        musicModelList = Utils.filterSong(listAllSong, s);
+        musicAdapter.setFilter(musicModelList);
     }
 
     private boolean addMusic() {
@@ -317,8 +350,14 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
 
     @Override
     public void onClick(int position) {
+
         STATE_PLAY_MUSIC = STATE_STOP;
+
         playMusic(position);
+
+        if (viewPlay.getVisibility() == View.GONE) {
+            viewPlay.setVisibility(View.VISIBLE);
+        }
     }
 
     private boolean isExistSong() {

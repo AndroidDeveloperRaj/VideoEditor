@@ -124,6 +124,16 @@ public class NiceVideoPlayer extends FrameLayout
         this.addView(mContainer, params);
     }
 
+    private INiceVideoPlayerCallback iNiceVideoPlayerCallback;
+
+    public interface INiceVideoPlayerCallback {
+        void onRestart();
+    }
+
+    public void setUpListener(INiceVideoPlayerCallback callback) {
+        this.iNiceVideoPlayerCallback = callback;
+    }
+
     public void setUp(String url, Map<String, String> headers) {
         mUrl = url;
         mHeaders = headers;
@@ -202,6 +212,7 @@ public class NiceVideoPlayer extends FrameLayout
         } else if (mCurrentState == STATE_COMPLETED || mCurrentState == STATE_ERROR) {
             mMediaPlayer.reset();
             openMediaPlayer();
+            iNiceVideoPlayerCallback.onRestart();
         } else {
             LogUtil.d("NiceVideoPlayer在mCurrentState == " + mCurrentState + "时不能调用restart()方法.");
         }
@@ -448,7 +459,7 @@ public class NiceVideoPlayer extends FrameLayout
             // 从上次的保存位置播放
             if (continueFromLastPosition) {
                 long savedPlayPosition = NiceUtil.getSavedPlayPosition(mContext, mUrl);
-                mp.seekTo(savedPlayPosition);
+                mp.seekTo(0);
             }
             // 跳到指定位置播放
             if (skipToPosition != 0) {

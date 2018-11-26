@@ -54,8 +54,10 @@
     <string name="replay">Replay</string>
     <string name="prepare">Preparing...</string>
     <string name="action_sort_order">Sort order</string>
-    <string name="sort_order_a_z">Ascending</string>
-    <string name="sort_order_z_a">Descending</string>
-    <string name="sort_date_added">Date added</string>
+    <string name="sort_order_a_z">Title A-Z</string>
+    <string name="sort_order_z_a">Title Z-A</string>
+    <string name="sort_date_added">Date: Ascending</string>
+    <string name="sort_date_added_descending">Date: Descending</string>
+    <string name="none">None</string>
 
 </resources>

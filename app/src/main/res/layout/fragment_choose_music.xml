@@ -44,6 +44,7 @@
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/lnView"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
@@ -58,7 +59,7 @@
             android:layout_marginTop="@dimen/_8sdp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:text="Trong tâm trí anh"
+            android:text="@string/none"
             android:textColor="#fff"
             android:textSize="@dimen/_14ssp"
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout"

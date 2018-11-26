@@ -19,7 +19,6 @@ public abstract class AbsDialog {
 
     public AbsDialog(Context context) {
         this.context = context;
-        //initDialog();
     }
 
     public abstract int initLayout();

@@ -45,6 +45,7 @@ public class Statistic {
     public static final String ARRAY_COMMAND = "command";
     public static final String TITLE_VIDEO = "title_video";
     public static final String SORT_ORDER_CURRENT = "current_sort_order";
+    public static final String SORT_ORDER_CURRENT_CHOOSE_VIDEO = "choose_sort_order";
     public static final String UPDATE_CHOOSE_SORT_ORDER = "update_choose_sort_order";
     public static File mSdCard = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
     public static File APP_DIRECTORY = new File(mSdCard, "BVideoEditor");

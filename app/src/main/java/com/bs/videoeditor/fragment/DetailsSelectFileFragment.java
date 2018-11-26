@@ -113,7 +113,7 @@ public class DetailsSelectFileFragment extends AbsFragment {
 
                 case R.id.item_search:
 
-                    List<VideoModel> audioEntities = Utils.getVideos(getContext());
+                    List<VideoModel> audioEntities = Utils.getVideos(getContext(), 0,null,true);
 
                     if (mMultiSelect.getSelectedItems().size() > 0) {
 
@@ -159,17 +159,13 @@ public class DetailsSelectFileFragment extends AbsFragment {
 
     private void setUpAdapters(MultiSelectBuilder<VideoModel> builder) {
 
-        leftListAudio = Utils.getVideos(getContext());
+        leftListAudio = Utils.getVideos(getContext(), 0,null,true);
         leftAdapter = new LeftListAdapter(getContext(), position -> mMultiSelect.select(position));
         rightAdapter = new RightListAdapter(getContext(), position -> mMultiSelect.deselect(position));
         leftAdapter.addAll(leftListAudio);
 
         builder.withLeftAdapter(leftAdapter)
                 .withRightAdapter(rightAdapter);
-
-        if (leftListAudio == null) {
-            return;
-        }
 
         if (leftListAudio.size() == 0) {
             tvNoAudioFile.setVisibility(View.VISIBLE);

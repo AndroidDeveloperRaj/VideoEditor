@@ -9,7 +9,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        project.ext.set("archivesBaseName", "VideoEditor_Debug")
+        project.ext.set("archivesBaseName", "VideoEditor_" + defaultConfig.versionName);
         multiDexEnabled true
     }
     buildTypes {
