@@ -422,7 +422,8 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
     private DialogInputName dialogInputName;
 
     private void renameVideo() {
-        dialogInputName = new DialogInputName(getContext(), this, "",getString(R.string.rename));
+        dialogInputName = new DialogInputName(getContext(), this,
+"",getString(R.string.rename));
         dialogInputName.initDialog();
         hideBottomSheetDialog();
     }
