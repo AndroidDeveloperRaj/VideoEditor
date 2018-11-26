@@ -210,7 +210,6 @@ public class VideoTimelineView extends View {
             Log.e("tmessages", e.toString());
         }
 
-
         resetProgress();
     }
 
