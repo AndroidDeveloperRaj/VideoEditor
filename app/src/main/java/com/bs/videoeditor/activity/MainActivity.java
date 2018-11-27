@@ -68,10 +68,10 @@ public class MainActivity extends AbsActivity {
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         CrsDialogFragment.loadData(this);
         admobFullHelper = new
@@ -88,6 +88,11 @@ public class MainActivity extends AbsActivity {
         initView();
         loadAdsBanner();
         loadAdsNative();
+    }
+
+    @Override
+    public int setView() {
+        return R.layout.activity_main;
     }
 
     public void showFullAds(boolean isAlwaysShow) {
@@ -167,10 +172,10 @@ public class MainActivity extends AbsActivity {
         });
     }
 
-    @Override
-    public int setView() {
-        return R.layout.activity_main;
-    }
+//    @Override
+//    public int setView() {
+//        return R.layout.activity_main;
+//    }
 
     private void initView() {
         ivBg = findViewById(R.id.iv_bg);

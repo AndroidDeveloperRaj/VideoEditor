@@ -198,13 +198,23 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
                 @Override
                 public void onFailure(String s) {
                     Flog.e("Successs     " + s);
-                    isSuccessCut = false;
+                    Toast.makeText(getContext(), getString(R.string.can_not_create_file), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onSuccess(String s) {
-                    Flog.e("Failllllllll   " + s);
-                    isSuccessCut = true;
+                    progressDialog.setProgress(100);
+                    progressDialog.dismiss();
+
+                    FileUtil.addFileToContentProvider(getContext(), path, title);
+
+                    Toast.makeText(getContext(), getString(R.string.create_file) + ": " + path, Toast.LENGTH_SHORT).show();
+
+                    if (isPauseFragment()) return;
+
+                    Utils.clearFragment(getFragmentManager());
+
+                    getContext().sendBroadcast(new Intent(Statistic.OPEN_CUTTER_STUDIO));
                 }
 
                 @Override
@@ -224,23 +234,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
 
                 @Override
                 public void onFinish() {
-                    if (isSuccessCut) {
-                        progressDialog.setProgress(100);
-                        progressDialog.dismiss();
 
-                        FileUtil.addFileToContentProvider(getContext(), path, title);
-
-                        Toast.makeText(getContext(), getString(R.string.create_file) + ": " + path, Toast.LENGTH_SHORT).show();
-
-                        if (isPauseFragment()) {
-                            return;
-                        }
-
-                        Utils.clearFragment(getFragmentManager());
-
-                        getContext().sendBroadcast(new Intent(Statistic.OPEN_CUTTER_STUDIO));
-
-                    }
                 }
             });
 

@@ -13,12 +13,14 @@ import com.bs.videoeditor.R;
 import com.bs.videoeditor.listener.IInputNameFile;
 import com.bs.videoeditor.utils.Utils;
 
+import static com.bs.videoeditor.utils.Utils.isStringHasCharacterSpecial;
+
 /**
  * Created by Hung on 11/16/2018.
  */
 
 public class DialogInputName extends AbsDialog {
-    private IInputNameFile callback;
+    private IInputNameFile mCallback;
     private AlertDialog.Builder builder;
     private AlertDialog alertDialog;
     private int resource;
@@ -28,10 +30,10 @@ public class DialogInputName extends AbsDialog {
     private String title = null;
     private TextView tvTitle;
 
-    public DialogInputName(Context context, IInputNameFile callback, String nameDefault, String title) {
+    public DialogInputName(Context context, IInputNameFile mCallback, String nameDefault, String title) {
         super(context);
         this.context = context;
-        this.callback = callback;
+        this.mCallback = mCallback;
         this.nameDefault = nameDefault;
         this.title = title;
     }
@@ -60,20 +62,20 @@ public class DialogInputName extends AbsDialog {
         String nameFile = edtNameFile.getText().toString().trim();
 
         if (nameFile.isEmpty()) {
-            callback.onFileNameEmpty();
+            mCallback.onFileNameEmpty();
             return;
         }
 
-        if (Utils.isStringHasCharacterSpecial(nameFile)) {
-            callback.onFileNameHasSpecialCharacter();
+        if (isStringHasCharacterSpecial(nameFile)) {
+            mCallback.onFileNameHasSpecialCharacter();
             return;
         }
 
-        callback.onApplySelect(edtNameFile.getText().toString().trim());
+        mCallback.onApplySelect(edtNameFile.getText().toString().trim());
 
     }
 
     private void cancelInput() {
-        callback.onCancelSelect();
+        mCallback.onCancelSelect();
     }
 }

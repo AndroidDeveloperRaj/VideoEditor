@@ -48,6 +48,7 @@ public class VideoTimelineView extends View {
     private int framesToLoad = 0;
     private int textHeight, rectYTop, rectYBottom;
     private Paint timePaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.LINEAR_TEXT_FLAG);
+    private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.LINEAR_TEXT_FLAG);
 
     public VideoTimelineView(Context context) {
         super(context);
@@ -79,11 +80,17 @@ public class VideoTimelineView extends View {
         paint.setColor(getResources().getColor(R.color.colorAccent));
         paint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint2.setColor(Color.WHITE);
-//        pickDrawable = getResources().getDrawable(R.drawable.videotrimmer);
+
+
+        textPaint.setColor(context.getResources().getColor(R.color.colorAccent));
+        textPaint.setAntiAlias(true);
+        textPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen._10ssp));
 
         timePaint.setColor(Color.WHITE);
         timePaint.setAntiAlias(true);
-        timePaint.setTypeface(Typeface.DEFAULT);
+        timePaint.setTypeface(Typeface.DEFAULT_BOLD);
         timePaint.setTextAlign(Paint.Align.CENTER);
         int textSize = getResources().getDimensionPixelSize(R.dimen._10ssp);
         timePaint.setTextSize(textSize);
@@ -391,7 +398,7 @@ public class VideoTimelineView extends View {
         //draw time
         Log.d("xxxxxxx", " " + PixelUtil.dpToPx(getContext(), 40) + "__" + width + PixelUtil.dpToPx(getContext(), 20));
 
-        canvas.drawText("Start: " + VideoUtil.normalizeTime((long) (progressLeft * videoLength)), PixelUtil.dpToPx(getContext(), 40), textHeight - timePaint.getTextSize() / 2, timePaint);
+        canvas.drawText(VideoUtil.normalizeTime((long) (progressLeft * videoLength)), PixelUtil.dpToPx(getContext(), 30), textHeight - timePaint.getTextSize() / 2, timePaint);
         canvas.drawText(VideoUtil.normalizeTime((long) (progressRight * videoLength)), width + PixelUtil.dpToPx(getContext(), 16), textHeight - timePaint.getTextSize() / 2, timePaint);
         canvas.drawText(VideoUtil.normalizeTime((long) ((progressRight - progressLeft) * videoLength)), getWidth() / 2, textHeight - timePaint.getTextSize() / 2, timePaint);
 

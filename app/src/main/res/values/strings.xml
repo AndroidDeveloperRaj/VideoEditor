@@ -59,5 +59,6 @@
     <string name="sort_date_added">Date: Ascending</string>
     <string name="sort_date_added_descending">Date: Descending</string>
     <string name="none">None</string>
+    <string name="can_not_create_file">Can not create video!</string>
 
 </resources>

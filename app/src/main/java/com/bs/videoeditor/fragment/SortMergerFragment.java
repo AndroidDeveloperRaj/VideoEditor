@@ -284,7 +284,7 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
         if (videoModelList.size() >= 2) {
 
             String nameDefault = "VM_" + simpleDateFormat.format(System.currentTimeMillis());
-            dialogInputName = new DialogInputName(getContext(), this, nameDefault,getString(R.string.save));
+            dialogInputName = new DialogInputName(getContext(), this, nameDefault, getString(R.string.save));
             dialogInputName.initDialog();
 
         } else {
@@ -313,15 +313,54 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
             ffmpeg.execute(command, new ExecuteBinaryResponseHandler() {
                 @Override
                 public void onFailure(String s) {
-                    isSuccess = false;
                     Flog.e("xxx", "FAILED with output: " + s);
-                }
 
+                    new File(path).delete();
+
+                    Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
+
+                    if (getFragmentManager() != null) {
+                        getFragmentManager().popBackStack();
+                    }
+
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
+                }
 
                 @Override
                 public void onSuccess(String s) {
-                    isSuccess = true;
+
                     Flog.e("Success " + s);
+
+                    Flog.e("Success finish ");
+                    if (isCancelSaveFile) {
+                        return;
+                    }
+
+                    if (isError) {
+                        return;
+                    }
+
+                    FileUtil.addFileToContentProvider(getContext(), path, title);
+
+                    Toast.makeText(getContext(), getString(R.string.create_file) + path, Toast.LENGTH_SHORT).show();
+
+                    progressDialog.setProgress(100);
+
+                    new Handler().postDelayed(() -> progressDialog.dismiss(), 500);
+
+                    if (isPauseFragment()) {
+                        return;
+                    }
+
+                    if (getFragmentManager() == null) {
+                        return;
+                    }
+
+                    Utils.clearFragment(getFragmentManager());
+
+                    getContext().sendBroadcast(new Intent(Statistic.OPEN_MERGER_STUDIO));
 
                 }
 
@@ -351,52 +390,7 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
 
                 @Override
                 public void onFinish() {
-                    Flog.e("Success finish ");
-                    if (isCancelSaveFile) {
-                        return;
-                    }
 
-                    if (isError) {
-                        return;
-                    }
-
-                    if (isSuccess) {
-                        isSuccess = false;
-
-                        FileUtil.addFileToContentProvider(getContext(), path, title);
-
-                        Toast.makeText(getContext(), getString(R.string.create_file) + path, Toast.LENGTH_SHORT).show();
-
-                        progressDialog.setProgress(100);
-
-                        new Handler().postDelayed(() -> progressDialog.dismiss(), 500);
-
-                        if (isPauseFragment()) {
-                            return;
-                        }
-
-                        if (getFragmentManager() == null) {
-                            return;
-                        }
-
-                        Utils.clearFragment(getFragmentManager());
-
-                        getContext().sendBroadcast(new Intent(Statistic.OPEN_MERGER_STUDIO));
-
-                    } else {
-
-                        new File(path).delete();
-
-                        Toast.makeText(getContext(), getString(R.string.error), Toast.LENGTH_SHORT).show();
-
-                        if (getFragmentManager() != null) {
-                            getFragmentManager().popBackStack();
-                        }
-
-                        if (progressDialog != null) {
-                            progressDialog.dismiss();
-                        }
-                    }
                 }
             });
         } catch (FFmpegCommandAlreadyRunningException e) {

@@ -27,9 +27,6 @@ import com.bs.videoeditor.utils.Flog;
 import com.bs.videoeditor.utils.SharedPrefs;
 import com.bs.videoeditor.utils.SortOrder;
 import com.bs.videoeditor.utils.Utils;
-import com.vlonjatg.progressactivity.ProgressConstraintLayout;
-import com.vlonjatg.progressactivity.ProgressRelativeLayout;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +44,7 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     private TextView tvNoVideo;
     private String listTitle[];
     private boolean isGetVideosSpeed = true;
-
+    private MenuItem listMenu[];
     private int mCheckAction = 0; // action is check this fragment choose video is fragment cutter == 0,addmusic == 2,speed ==1
 
     public static ListVideoFragment newInstance(Bundle bundle) {
@@ -131,19 +128,26 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
 
     private void setUpSortOrderMenu() {
         int currentSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT_CHOOSE_VIDEO, Integer.class, ID_SONG_A_Z);
+
         getToolbar().getMenu().setGroupCheckable(0, true, true);
-        getToolbar().getMenu().findItem(R.id.item_a_z).setChecked(currentSortOrder == ID_SONG_A_Z);
-        getToolbar().getMenu().findItem(R.id.item_z_a).setChecked(currentSortOrder == ID_SONG_Z_A);
-        getToolbar().getMenu().findItem(R.id.item_date_ascending).setChecked(currentSortOrder == ID_SONG_DATE_ADDED);
-        getToolbar().getMenu().findItem(R.id.item_date_descending).setChecked(currentSortOrder == ID_SONG_DATE_ADDED_DESCENDING);
-        getToolbar().getMenu().findItem(R.id.item_a_z).setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_A_Z, menuItem));
-        getToolbar().getMenu().findItem(R.id.item_z_a).setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_Z_A, menuItem));
-        getToolbar().getMenu().findItem(R.id.item_date_ascending).setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_DATE_ADDED, menuItem));
-        getToolbar().getMenu().findItem(R.id.item_date_descending).setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_DATE_ADDED_DESCENDING, menuItem));
+
+        MenuItem menuItemAZ, menuItemZA, menuItemDateASC, menuItemDateDESC;
+        menuItemAZ = getToolbar().getMenu().findItem(R.id.item_a_z);
+        menuItemDateASC = getToolbar().getMenu().findItem(R.id.item_date_ascending);
+        menuItemDateDESC = getToolbar().getMenu().findItem(R.id.item_date_descending);
+        menuItemZA = getToolbar().getMenu().findItem(R.id.item_z_a);
+
+        listMenu = new MenuItem[]{menuItemAZ, menuItemZA, menuItemDateASC, menuItemDateDESC};
+        listMenu[currentSortOrder].setChecked(true);
+
+        menuItemAZ.setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_A_Z, menuItem));
+        menuItemZA.setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_Z_A, menuItem));
+        menuItemDateASC.setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_DATE_ADDED, menuItem));
+        menuItemDateDESC.setOnMenuItemClickListener(menuItem -> saveIdSortOrder(ID_SONG_DATE_ADDED_DESCENDING, menuItem));
+
     }
 
     private boolean saveIdSortOrder(int id, @NonNull MenuItem menuItem) {
-        Flog.e(" currrrrrrrrrrr id " + id);
         mSortOrderId = id;
         loadVideo();
         menuItem.setChecked(true);

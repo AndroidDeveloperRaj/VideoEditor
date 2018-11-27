@@ -41,8 +41,6 @@ public abstract class AbsActivity extends AppCompatActivity {
        // adView();
     }
 
-
-
     private void checkRuntimePermission() {
         Dexter.withActivity(this)
                 .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE

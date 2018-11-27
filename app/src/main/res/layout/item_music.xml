@@ -5,7 +5,7 @@
     android:layout_height="@dimen/_55sdp"
     android:background="?attr/selectableItemBackground">
 
-    <android.support.constraint.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true">
@@ -35,7 +35,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_marginLeft="@dimen/_8sdp"
@@ -102,5 +102,5 @@
         </android.support.constraint.ConstraintLayout>
 
 
-    </android.support.constraint.ConstraintLayout>
+    </RelativeLayout>
 </RelativeLayout>

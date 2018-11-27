@@ -63,6 +63,8 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US);
     private DialogInputName dialogInputName;
     private TextView tvProgressVideo, tvProgressMusic;
+    private boolean isAddMusicSuccess = false;
+    private ProgressDialog progressDialog;
 
     public static AddMusicFragment newInstance(Bundle bundle) {
         AddMusicFragment fragment = new AddMusicFragment();
@@ -84,10 +86,8 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
                     bvp.reset();
                     if (!bvp.isPrepared()) {
                         bvp.prepare();
-                        Flog.e("need prepare        x");
                     }
                     initMusic();
-                    Flog.e(" pathhhhh adddddd   " + pathMusicAdd);
                     break;
 
             }
@@ -106,13 +106,8 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
     }
 
     private void releaseVideo() {
-
-        if (bvp == null) {
-            return;
-        }
-
+        if (bvp == null) return;
         bvp.stop();
-
     }
 
     private boolean isCompleteVideo = false;
@@ -404,9 +399,6 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-//        mediaPlayer.stop();
-//        mediaPlayer.reset();
-//        mediaPlayer.release();
         mediaPlayer.pause();
     }
 
@@ -433,7 +425,6 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
             return;
         }
 
-
         String command[] = new String[]{"-i", videoModel.getPath(), "-i",
                 pathMusicAdd, "-filter_complex", "[0:a]volume=" + volumeVideo + "[a0];[1:a]volume=" + volumeMusic + "[a1];[a0][a1]amix=inputs=2[a]",
                 "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", pathNewFile};
@@ -444,8 +435,6 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
     }
 
-    private boolean isAddMusicSuccess = false;
-
     private void execFFmpegBinary(final String[] command, String path, String title) {
         Log.e("xxx", "cccccccccccccc");
         try {
@@ -453,14 +442,28 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
                 @Override
                 public void onFailure(String s) {
                     Flog.e("Failllllllll   " + s);
-                    isAddMusicSuccess = false;
+                    Toast.makeText(getContext(), getString(R.string.can_not_create_file), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onSuccess(String s) {
                     Flog.e("Successs     " + s);
 
-                    isAddMusicSuccess = true;
+                    progressDialog.setProgress(100);
+                    progressDialog.dismiss();
+
+                    FileUtil.addFileToContentProvider(getContext(), path, title);
+
+                    Toast.makeText(getContext(), getString(R.string.create_file) + ": " + path, Toast.LENGTH_SHORT).show();
+
+                    if (isPauseFragment()) {
+                        return;
+                    }
+
+                    Utils.clearFragment(getFragmentManager());
+
+                    getContext().sendBroadcast(new Intent(Statistic.OPEN_ADD_MUSIC_STUDIO));
+
                 }
 
                 @Override
@@ -480,23 +483,7 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
                 @Override
                 public void onFinish() {
-                    if (isAddMusicSuccess) {
-                        progressDialog.setProgress(100);
-                        progressDialog.dismiss();
 
-                        FileUtil.addFileToContentProvider(getContext(), path, title);
-
-                        Toast.makeText(getContext(), getString(R.string.create_file) + ": " + path, Toast.LENGTH_SHORT).show();
-
-                        if (isPauseFragment()) {
-                            return;
-                        }
-
-                        Utils.clearFragment(getFragmentManager());
-
-                        getContext().sendBroadcast(new Intent(Statistic.OPEN_ADD_MUSIC_STUDIO));
-
-                    }
                 }
             });
 
@@ -505,8 +492,6 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
         }
     }
-
-    private ProgressDialog progressDialog;
 
     private void initDialogProgress() {
         progressDialog = new ProgressDialog(getContext());

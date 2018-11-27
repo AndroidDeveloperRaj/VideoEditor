@@ -103,7 +103,10 @@ public class Utils {
                 MusicModel audio = new MusicModel(id, name, path, Long.parseLong(duration));
 
                 try {
-                    if (duration != null && Long.parseLong(duration) > 0 && path != null && !path.contains(".flac")) {
+                    if (duration != null && Long.parseLong(duration) > 1000 && path != null
+                            && !path.contains(".flac") && !path.contains(".ac3")
+                            && !path.contains(".ape")
+                            ) {
                         musicModelList.add(audio);
                     }
                 } catch (NumberFormatException ex) {

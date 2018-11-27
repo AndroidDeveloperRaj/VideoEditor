@@ -82,6 +82,14 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
                 .touchToSeek()
                 .build();
 
+        ffmpeg = FFmpeg.getInstance(getContext());
+
+        videoModel = getArguments().getParcelable(Statistic.VIDEO_MODEL);
+
+        getToolbar().setTitle(getString(R.string.speed));
+        getToolbar().getMenu().findItem(R.id.item_save).setOnMenuItemClickListener(menuItem -> dialogLocalSave());
+
+        initVideo();
     }
 
     @Override
@@ -98,17 +106,11 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
 
     private boolean dialogLocalSave() {
-
         pauseVideo();
-
         String defaultName = "VS_" + simpleDateFormat.format(System.currentTimeMillis());
-
         dialogInputName = new DialogInputName(getContext(), this, defaultName, getString(R.string.save));
-
         dialogInputName.initDialog();
-
         return true;
-
     }
 
     public static SpeedFragment newInstance(Bundle bundle) {
@@ -127,23 +129,8 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
     }
 
-    @Override
-    public void initToolbar() {
-        super.initToolbar();
-        ffmpeg = FFmpeg.getInstance(getContext());
-        videoModel = getArguments().getParcelable(Statistic.VIDEO_MODEL);
-        getToolbar().setTitle(getString(R.string.speed));
-        getToolbar().getMenu().findItem(R.id.item_save).setOnMenuItemClickListener(menuItem -> dialogLocalSave());
-        initVideo();
-        Flog.e("xxx     inittttttttttttttttttt");
-    }
-
-    private String listStringToVideo[];
-
     private void initVideo() {
-
-        listStringToVideo = new String[]{getString(R.string.replay), getString(R.string.error), getString(R.string.prepare)};
-
+        String[] listStringToVideo = new String[]{getString(R.string.replay), getString(R.string.error), getString(R.string.prepare)};
         TxVideoPlayerController controller = new TxVideoPlayerController(getContext(), listStringToVideo);
         controller.setTitle("");
         controller.setLenght(Long.parseLong(videoModel.getDuration()));
@@ -155,7 +142,6 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         mNiceVideoPlayer.setController(controller);
         mNiceVideoPlayer.continueFromLastPosition(true);
         mNiceVideoPlayer.start();
-        // mNiceVideoPlayer.start(0);
     }
 
     @Override
@@ -163,7 +149,10 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         saveFile(nameFile);
     }
 
+    private String tempFile;
+
     private void saveFile(String nameFile) {
+
         String extensionFile = null;
 
         if (FileUtil.isEmpty(nameFile)) {
@@ -178,9 +167,11 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
         newPath = Environment.getExternalStorageDirectory().getAbsolutePath() + Statistic.DIR_APP + Statistic.DIR_SPEED + "/";
 
-        if (!new File(newPath).exists()) {
-            new File(newPath).mkdirs();
-        }
+        File f = new File(newPath);
+        if (!f.exists()) f.mkdirs();
+
+        File file = new File(tempFile);
+        if (!file.exists()) file.mkdirs();
 
         extensionFile = Utils.getFileExtension(videoModel.getPath());
 
@@ -193,24 +184,8 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         }
 
         String sSpeed = "[0:v]setpts=" + ptsVideo + "*PTS[v];[0:a]atempo=" + tempoVideo + "[a]";
-
         //String[] complexCommand = {"-i", videoModel.getPath(), "-filter_complex", sSpeed, "-map", "[v]", "-map", "[a]", "-b:v", "2097k", "-r", "60", "-vcodec", "mpeg4", newPath};
         String[] complexCommand = {"-i", videoModel.getPath(), "-filter_complex", sSpeed, "-map", "[v]", "-map", "[a]", newPath};
-//
-//        Bundle bundle = new Bundle();
-//        bundle.putStringArray(Statistic.ARRAY_COMMAND, complexCommand);
-//        bundle.putString(Statistic.PATH_VIDEO, newPath);
-//        bundle.putString(Statistic.TITLE_VIDEO, nameFile);
-//        bundle.putParcelable(Statistic.VIDEO_MODEL, videoModel);
-//
-//        getActivity().getSupportFragmentManager().beginTransaction()
-//                .add(R.id.view_container1, ProgressSavingFragment.newInstance(bundle))
-//                .addToBackStack(null)
-//                .commit();
-//
-//        if (true) {
-//            return;
-//        }
 
         initDialogProgress();
 
@@ -250,13 +225,29 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
                 @Override
                 public void onFailure(String s) {
                     Flog.e("Successs     " + s);
-                    isSuccessCreate = false;
+
+                    Toast.makeText(getContext(), getString(R.string.can_not_create_file), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onSuccess(String s) {
                     Flog.e("Failllllllll   " + s);
-                    isSuccessCreate = true;
+
+                    progressDialog.setProgress(100);
+                    progressDialog.dismiss();
+
+                    FileUtil.addFileToContentProvider(getContext(), path, title);
+
+                    Toast.makeText(getContext(), getString(R.string.create_file) + ": " + path, Toast.LENGTH_SHORT).show();
+
+                    if (isPauseFragment()) {
+                        return;
+                    }
+
+                    Utils.clearFragment(getFragmentManager());
+
+                    getContext().sendBroadcast(new Intent(Statistic.OPEN_SPEED_STUDIO));
+
                 }
 
                 @Override
@@ -279,22 +270,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
                 @Override
                 public void onFinish() {
-                    if (isSuccessCreate) {
-                        progressDialog.setProgress(100);
-                        progressDialog.dismiss();
 
-                        FileUtil.addFileToContentProvider(getContext(), path, title);
-
-                        Toast.makeText(getContext(), getString(R.string.create_file) + ": " + path, Toast.LENGTH_SHORT).show();
-
-                        if (isPauseFragment()) {
-                            return;
-                        }
-
-                        Utils.clearFragment(getFragmentManager());
-
-                        getContext().sendBroadcast(new Intent(Statistic.OPEN_SPEED_STUDIO));
-                    }
                 }
             });
 
@@ -302,6 +278,8 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
             e.printStackTrace();
         }
     }
+
+    private String[] command = new String[]{"-i", tempFile, "-c", "copy", newPath};
 
     @Override
     public void onDestroy() {
@@ -353,7 +331,6 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
     @Override
     public void onRestart() {
-        Flog.e("xxxxxx        tempooooooooooo     " + tempoVideo);
         mNiceVideoPlayer.setSpeed(tempoVideo);
     }
 }
