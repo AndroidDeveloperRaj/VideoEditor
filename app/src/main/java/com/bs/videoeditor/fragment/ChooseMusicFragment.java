@@ -215,12 +215,17 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
             rangeSeekbar.setRangeValues(0, Integer.parseInt(String.valueOf(selectedSong.getDuration())));
             rangeSeekbar.setSelectedMinValue(0);
             rangeSeekbar.setSelectedMaxValue(Integer.parseInt(String.valueOf(selectedSong.getDuration())));
-            rangeSeekbar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> pauseMediaPlayer());
+            rangeSeekbar.setOnRangeSeekBarChangeListener((bar, minValue, maxValue) -> {
+                isChangeSeekbar = true;
+                pauseMediaPlayer();
+            });
 
             stopMedia();
             playAudio();
         }
     }
+
+    private boolean isChangeSeekbar = false;
 
     private void pauseMediaPlayer() {
         if (mediaPlayer == null) {
@@ -237,14 +242,15 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
 
     private void startMediaPlayer() {
 
-        if (mediaPlayer == null) {
-            return;
-        }
+        if (mediaPlayer == null) return;
 
         mediaPlayer.start();
 
-        if (mediaPlayer.getCurrentPosition() < (Integer) rangeSeekbar.getSelectedMinValue()) {
+        if (isChangeSeekbar) {
             mediaPlayer.seekTo((Integer) rangeSeekbar.getSelectedMinValue());
+            isChangeSeekbar = false;
+        } else {
+            mediaPlayer.start();
         }
 
         if (isMaxRangerSeekbar) {
@@ -326,13 +332,12 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     private boolean isMaxRangerSeekbar = false;
 
     private void stopMedia() {
+
         STATE_PLAY_MUSIC = STATE_STOP;
 
         ivPlay.setImageResource(R.drawable.ic_play_arrow_black_24dp);
 
-        if (mediaPlayer == null) {
-            return;
-        }
+        if (mediaPlayer == null) return;
 
         mediaPlayer.stop();
         mediaPlayer.reset();

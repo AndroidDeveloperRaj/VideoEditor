@@ -149,9 +149,9 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         saveFile(nameFile);
     }
 
-    private String tempFile;
-
     private void saveFile(String nameFile) {
+
+        isCancelSaveFile = false;
 
         String extensionFile = null;
 
@@ -169,9 +169,6 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
         File f = new File(newPath);
         if (!f.exists()) f.mkdirs();
-
-        File file = new File(tempFile);
-        if (!file.exists()) file.mkdirs();
 
         extensionFile = Utils.getFileExtension(videoModel.getPath());
 
@@ -203,7 +200,11 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         progressDialog.show();
     }
 
+    private boolean isCancelSaveFile = false;
+
     private void cancelCreateFile() {
+        isCancelSaveFile = true;
+
         if (ffmpeg.isFFmpegCommandRunning()) {
             ffmpeg.killRunningProcesses();
         }
@@ -219,22 +220,26 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
 
     private void execFFmpegBinary(final String[] command, String path, String title) {
-        Log.e("xxx", "cccccccccccccc");
         try {
             ffmpeg.execute(command, new ExecuteBinaryResponseHandler() {
                 @Override
                 public void onFailure(String s) {
                     Flog.e("Successs     " + s);
-
                     Toast.makeText(getContext(), getString(R.string.can_not_create_file), Toast.LENGTH_SHORT).show();
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                 }
 
                 @Override
                 public void onSuccess(String s) {
                     Flog.e("Failllllllll   " + s);
+                    if (isCancelSaveFile) return;
 
-                    progressDialog.setProgress(100);
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.setProgress(100);
+                        progressDialog.dismiss();
+                    }
 
                     FileUtil.addFileToContentProvider(getContext(), path, title);
 
@@ -279,8 +284,6 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         }
     }
 
-    private String[] command = new String[]{"-i", tempFile, "-c", "copy", newPath};
-
     @Override
     public void onDestroy() {
         if (mNiceVideoPlayer != null) {
@@ -313,7 +316,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         tempoVideo = listTempoAudio[progress - 1];
         ptsVideo = listPtsVideo[progress - 1];
         Flog.e("xxxxxx  changeeeeeeeeeeeeee");
-        if (mNiceVideoPlayer.isPlaying()) {
+        if (mNiceVideoPlayer != null) {
             Flog.e("xxxxxx  playing");
             mNiceVideoPlayer.setSpeed(listTempoAudio[progress - 1]);
         }

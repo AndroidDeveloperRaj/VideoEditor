@@ -411,6 +411,9 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
     private void saveFileAddMusic(String nameFile) {
         String pathAudio = null;
+
+        isCancelSaveFile = false;
+
         pathNewFile = Environment.getExternalStorageDirectory().getAbsolutePath() + Statistic.DIR_APP + Statistic.DIR_ADD_MUSIC + "/";
 
         if (!new File(pathNewFile).exists()) {
@@ -442,15 +445,21 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
                 @Override
                 public void onFailure(String s) {
                     Flog.e("Failllllllll   " + s);
+                    if (progressDialog != null) {
+                        progressDialog.dismiss();
+                    }
                     Toast.makeText(getContext(), getString(R.string.can_not_create_file), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onSuccess(String s) {
                     Flog.e("Successs     " + s);
+                    if (isCancelSaveFile) return;
 
-                    progressDialog.setProgress(100);
-                    progressDialog.dismiss();
+                    if (progressDialog != null) {
+                        progressDialog.setProgress(100);
+                        progressDialog.dismiss();
+                    }
 
                     FileUtil.addFileToContentProvider(getContext(), path, title);
 
@@ -472,7 +481,9 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
                     int durationFile = (int) Utils.getProgress(s, Long.parseLong(videoModel.getDuration()) / 1000);
                     float percent = durationFile / (Float.parseFloat(videoModel.getDuration()) / 1000);
                     if (progressDialog != null) {
-                        progressDialog.setProgress((int) (percent * 100));
+                        if (percent * 100 > 0 && percent * 100 <= 100) {
+                            progressDialog.setProgress((int) (percent * 100));
+                        }
                     }
                 }
 
@@ -503,7 +514,11 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
         progressDialog.show();
     }
 
+    private boolean isCancelSaveFile = false;
+
     private void cancelAddMusic() {
+        isCancelSaveFile = true;
+
         if (ffmpeg.isFFmpegCommandRunning()) {
             ffmpeg.killRunningProcesses();
         }

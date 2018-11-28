@@ -120,7 +120,7 @@ public class StudioFragment extends AbsFragment {
     }
 
     private void setUpSortOrderMenu() {
-        int currentSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT, Integer.class, ID_SONG_A_Z);
+        int currentSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT, Integer.class, ID_SONG_DATE_ADDED_DESCENDING);
 
         getToolbar().getMenu().setGroupCheckable(0, true, true);
 
@@ -140,7 +140,7 @@ public class StudioFragment extends AbsFragment {
     }
 
     private boolean saveIdSortOrder(int id, @NonNull MenuItem menuItem) {
-        Flog.e("xxxxx       clicccccccccccc"+id);
+        Flog.e("xxxxx       clicccccccccccc" + id);
         menuItem.setChecked(true);
         SharedPrefs.getInstance().put(Statistic.SORT_ORDER_CURRENT, id);
         getContext().sendBroadcast(new Intent(Statistic.UPDATE_CHOOSE_SORT_ORDER).putExtra(Statistic.SORT_ORDER_CURRENT, id));

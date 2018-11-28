@@ -3,8 +3,10 @@ package com.bs.videoeditor.fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -39,7 +41,7 @@ import static com.bs.videoeditor.utils.Utils.getFileExtension;
  * Created by Hung on 11/15/2018.
  */
 
-public class CutterFragment extends AbsFragment implements IInputNameFile {
+public class CutterFragment extends AbsFragment implements IInputNameFile, VideoControllerView.ICallBackComplete {
     private MyVideoView_Old videoView;
     private VideoTimelineView videoTimelineView;
     private VideoControllerView videoControllerView;
@@ -49,7 +51,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
     private VideoModel videoModel;
     private ProgressDialog progressDialog;
     private boolean isSuccessCut = false;
-
+    private Handler handler;
 
     public static CutterFragment newInstance(Bundle bundle) {
         CutterFragment fragment = new CutterFragment();
@@ -73,6 +75,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
         videoView = (MyVideoView_Old) findViewById(R.id.video_view);
         videoView.setDependentView(findViewById(R.id.foreground_video));
         videoControllerView = (VideoControllerView) findViewById(R.id.foreground_video);
+        videoControllerView.setListener(this);
         videoControllerView.setViewVideoView(videoView);
 
         initVideoView();
@@ -82,7 +85,8 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
     }
 
     private void save(String fileName) {
-        String nameFile = null, extensionFile = null;
+
+        isCancelCut = false;
 
         int startTime = 0, endTime = 0, durationAudio = 0;
 
@@ -101,12 +105,27 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
         }
 
         startTime = Math.round(videoTimelineView.getLeftProgress() * videoTimelineView.getVideoLength() / 1000);
+
         endTime = Math.round(videoTimelineView.getRightProgress() * videoTimelineView.getVideoLength() / 1000);
+
         durationAudio = endTime - startTime;
 
-        String command[] = new String[]{"-i", pathOldFile, "-ss", startTime + "", "-t", String.valueOf(durationAudio), "-c", "copy", pathNewFile};
+        if (durationAudio < 1) {
+            Toast.makeText(getContext(), getString(R.string.time_fail), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+        String command[] = new String[]{"-i", videoModel.getPath(), "-ss", startTime + "", "-t", String.valueOf(durationAudio), "-c", "copy", pathNewFile};
+
+        if (false) {
+            Flog.e("xxx  " + command[0] + "___" + videoModel.getPath() + "___" + startTime + "___");
+            return;
+        }
+
 
         initDialogProgress();
+
         execFFmpegBinary(command, pathNewFile, fileName);
 
     }
@@ -126,16 +145,47 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
         return inflater.inflate(R.layout.fragment_cutter, container, false);
     }
 
+    private boolean isChangeVideoTimeline = false;
+
     private void initVideoTimeline() {
         videoTimelineView.clearFrames();
         videoTimelineView.setVideoPath(pathOldFile);
         videoTimelineView.setOnProgressChangeListener((leftChange, currentMili) -> {
+            isPlayToEnd = true;
             if (videoView.isPlaying()) {
                 videoView.pause();
                 videoControllerView.goPauseMode();
             }
             videoView.seekTo((int) currentMili);
         });
+    }
+
+    private boolean isPlayToEnd = false;
+
+    private void updateProgress() {
+        if (handler == null) {
+            handler = new Handler();
+        }
+
+        handler.removeCallbacksAndMessages(null);
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Flog.e(" posssss     " + videoView.getCurrentPosition() + "___" + (videoTimelineView.getRightProgress() * 100) * videoView.getDuration() / 100);
+                if (videoView.getCurrentPosition() >= (videoTimelineView.getRightProgress() * 100) * videoView.getDuration() / 100) {
+                    Flog.e("paissssssssssssssss  ");
+                    isPlayToEnd = true;
+
+                    pauseVideo();
+
+                    handler.removeCallbacksAndMessages(null);
+
+                } else {
+                    handler.postDelayed(this, 500);
+                }
+            }
+        }, 500);
     }
 
     private void initVideoView() {
@@ -165,6 +215,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
         });
 
         videoView.setOnErrorListener((mediaPlayer, i, i1) -> true);
+
     }
 
     private void initDialogProgress() {
@@ -177,7 +228,11 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
         progressDialog.show();
     }
 
+    private boolean isCancelCut = false;
+
     private void cancelCutter() {
+        isCancelCut = true;
+
         if (ffmpeg.isFFmpegCommandRunning()) {
             ffmpeg.killRunningProcesses();
         }
@@ -198,11 +253,15 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
                 @Override
                 public void onFailure(String s) {
                     Flog.e("Successs     " + s);
+                    progressDialog.dismiss();
                     Toast.makeText(getContext(), getString(R.string.can_not_create_file), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onSuccess(String s) {
+
+                    if (isSuccessCut) return;
+
                     progressDialog.setProgress(100);
                     progressDialog.dismiss();
 
@@ -284,5 +343,32 @@ public class CutterFragment extends AbsFragment implements IInputNameFile {
     @Override
     public void onFileNameHasSpecialCharacter() {
         Toast.makeText(getContext(), getString(R.string.name_file_can_not_contain_character), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onCompleteVideo() {
+        isPlayToEnd = false;
+    }
+
+    @Override
+    public void onStartVideo() {
+        if (videoView != null && null != videoControllerView) {
+            videoView.start();
+            videoControllerView.startVideo();
+            if (isPlayToEnd) {
+                Flog.e(" xxx              " + (int) ((videoTimelineView.getLeftProgress() * 100) * videoView.getDuration() / 100));
+                videoView.seekTo((int) ((videoTimelineView.getLeftProgress() * 100) * videoView.getDuration() / 100));
+                isPlayToEnd = false;
+            }
+        }
+        updateProgress();
+    }
+
+    @Override
+    public void onPauseVideo() {
+        if (videoView != null && null != videoControllerView) {
+            videoView.pause();
+            videoControllerView.goPauseMode();
+        }
     }
 }

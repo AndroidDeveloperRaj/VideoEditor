@@ -106,7 +106,7 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     public void initToolbar() {
         super.initToolbar();
 
-        mSortOrderId = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT_CHOOSE_VIDEO, Integer.class, SortOrder.ID_SONG_A_Z);
+        mSortOrderId = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT_CHOOSE_VIDEO, Integer.class, SortOrder.ID_SONG_DATE_ADDED_DESCENDING);
         mCheckAction = getArguments().getInt(Statistic.ACTION, 0);
 
         if (mCheckAction == 1) {
@@ -120,14 +120,14 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
 
         getToolbar().setTitle(listTitle[mCheckAction]);
         getToolbar().getMenu().clear();
-        getToolbar().inflateMenu(R.menu.menu_search1);
+        getToolbar().inflateMenu(R.menu.menu_search1);;
         searchAudio(getToolbar());
 
         setUpSortOrderMenu();
     }
 
     private void setUpSortOrderMenu() {
-        int currentSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT_CHOOSE_VIDEO, Integer.class, ID_SONG_A_Z);
+        int currentSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT_CHOOSE_VIDEO, Integer.class, ID_SONG_DATE_ADDED_DESCENDING);
 
         getToolbar().getMenu().setGroupCheckable(0, true, true);
 
@@ -163,7 +163,7 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
         tvNoVideo.setVisibility(View.GONE);
     }
 
-    private int mSortOrderId = SortOrder.ID_SONG_A_Z;
+    private int mSortOrderId = ID_SONG_DATE_ADDED_DESCENDING;
 
     private void loadVideo() {
         new AsyncTask<Void, Void, Void>() {

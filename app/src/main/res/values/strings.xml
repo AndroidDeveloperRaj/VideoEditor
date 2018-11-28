@@ -37,7 +37,7 @@
     <string name="open_file_with">Open file with</string>
     <string name="title_audio">Title</string>
     <string name="music">Select audio</string>
-    <string name="time_fail">Time audio cannot be less than zero!</string>
+    <string name="time_fail">Time audio cannot be less than one second!</string>
     <string name="choose_other_file">Please choose other file!</string>
     <string name="not_support_this_file">Not support this file!</string>
     <string name="share_file">Share audio to..</string>

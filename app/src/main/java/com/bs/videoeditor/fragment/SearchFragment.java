@@ -88,7 +88,7 @@ public class SearchFragment extends AbsFragment implements VideoAdapter.ItemSele
 
             @Override
             public boolean onQueryTextChange(String s) {
-               // actionSearch(s);
+                actionSearch(s);
                 return true;
             }
         });

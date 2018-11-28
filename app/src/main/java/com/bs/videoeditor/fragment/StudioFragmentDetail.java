@@ -89,7 +89,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
                     break;
 
                 case Statistic.UPDATE_CHOOSE_SORT_ORDER:
-                    mSortOrder = intent.getIntExtra(Statistic.SORT_ORDER_CURRENT, SortOrder.ID_SONG_A_Z);
+                    mSortOrder = intent.getIntExtra(Statistic.SORT_ORDER_CURRENT, SortOrder.ID_SONG_DATE_ADDED_DESCENDING);
                     updateList();
                     break;
             }
@@ -292,12 +292,12 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         }
     }
 
-    private int mSortOrder = 0;
+    private int mSortOrder = 3;
 
     @Override
     public void initViews() {
 
-        mSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT, Integer.class, 0);
+        mSortOrder = SharedPrefs.getInstance().get(Statistic.SORT_ORDER_CURRENT, Integer.class, 3);
 
         checkCurrentFragment = getArguments().getString(Statistic.CHECK_STUDIO_FRAGMENT, null);
         if (checkCurrentFragment == null) {

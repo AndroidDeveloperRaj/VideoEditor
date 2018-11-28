@@ -193,6 +193,8 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
 
     private boolean mergerAudio(String nameFile) {
 
+        isCancelSaveFile = false;
+
         boolean isAbleMerger = true;
 
         for (VideoModel videoModel : videoModelList) {
@@ -347,8 +349,6 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
                     Toast.makeText(getContext(), getString(R.string.create_file) + path, Toast.LENGTH_SHORT).show();
 
                     progressDialog.setProgress(100);
-
-                    new Handler().postDelayed(() -> progressDialog.dismiss(), 500);
 
                     if (isPauseFragment()) {
                         return;

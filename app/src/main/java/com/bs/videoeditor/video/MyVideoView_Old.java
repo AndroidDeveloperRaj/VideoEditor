@@ -41,6 +41,10 @@ public class MyVideoView_Old extends VideoView {
         super.start();
     }
 
+    public void getProgressVideo(){
+
+    }
+
     @Override
     public void pause() {
         if (mediaListener != null && handleListener) {

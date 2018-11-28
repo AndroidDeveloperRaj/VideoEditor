@@ -19,6 +19,7 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 import com.bs.videoeditor.R;
+import com.bs.videoeditor.utils.Flog;
 
 
 public class VideoControllerView extends FrameLayout implements View.OnClickListener, Runnable, MediaPlayer.OnCompletionListener, net.protyposis.android.mediaplayer.MediaPlayer.OnCompletionListener {
@@ -30,6 +31,26 @@ public class VideoControllerView extends FrameLayout implements View.OnClickList
     private boolean isShowForeground = true;
     private Handler hideForegroundHandler;
     private boolean isCompleted = false;
+    private ICallBackComplete callBackComplete;
+
+    public interface ICallBackComplete {
+        void onCompleteVideo();
+
+        void onStartVideo();
+
+        void onPauseVideo();
+    }
+
+    public void startVideo() {
+        mButton.setImageResource(R.drawable.ic_pause_video);
+        hideForeground();
+        fadeOut();
+        mMediaController.start();
+    }
+
+    public void setListener(ICallBackComplete callBackComplete) {
+        this.callBackComplete = callBackComplete;
+    }
 
     public VideoControllerView(Context context) {
         super(context);
@@ -131,7 +152,7 @@ public class VideoControllerView extends FrameLayout implements View.OnClickList
     @Override
     public void onClick(View v) {
         if (v == this) {
-            Log.d(TAG, "click foreground");
+            Flog.e("click foreground");
             if (mMediaController.isPlaying()) {
                 if (!isShowForeground) {
                     showForeground();
@@ -140,15 +161,26 @@ public class VideoControllerView extends FrameLayout implements View.OnClickList
                 }
             }
         } else {
-            Log.d(TAG, "click button");
+            Flog.e("click button");
             //click button
             if (isCompleted) {
                 //replay video
+                if (callBackComplete != null) {
+                    callBackComplete.onCompleteVideo();
+                }
+
                 mButton.setImageResource(R.drawable.ic_play_video);
 
                 mMediaController.start();
+
+                if (callBackComplete != null) {
+                    callBackComplete.onStartVideo();
+                }
+
                 isCompleted = false;
+
                 hideForeground();
+
                 return;
             }
 
@@ -157,14 +189,22 @@ public class VideoControllerView extends FrameLayout implements View.OnClickList
                 fadeIn();
                 showForeground();
                 mMediaController.pause();
+                if (callBackComplete != null) {
+                    callBackComplete.onPauseVideo();
+                }
             } else {
                 mButton.setImageResource(R.drawable.ic_pause_video);
                 hideForeground();
                 fadeOut();
                 mMediaController.start();
+                if (callBackComplete != null) {
+                    callBackComplete.onStartVideo();
+                }
             }
         }
     }
+
+    private boolean isEndTime = false; // when current time = time set then stop video
 
     public void showForeground() {
         setBackgroundColor(getResources().getColor(R.color.dim_color));

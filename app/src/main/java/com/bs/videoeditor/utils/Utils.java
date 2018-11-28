@@ -336,7 +336,7 @@ public class Utils {
     }
 
     public static List<VideoModel> getStudioVideos(Context context, String section, int sortOrder) {
-        String sort = SortOrder.SongSortOrder.SONG_A_Z;
+        String sort = SortOrder.SongSortOrder.SONG_DATE_DESC;
 
         switch (sortOrder) {
             case SortOrder.ID_SONG_A_Z:

@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.bs.videoeditor.R;
+import com.bs.videoeditor.utils.Utils;
 
 
 public abstract class AbsFragment extends Fragment {
@@ -55,9 +56,14 @@ public abstract class AbsFragment extends Fragment {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setNavigationIcon(R.drawable.ic_back);
-            toolbar.setNavigationOnClickListener(view -> getFragmentManager().popBackStack());
+            toolbar.setNavigationOnClickListener(view -> onBack());
             toolbar.inflateMenu(R.menu.menu_save);
         }
+    }
+
+    private void onBack() {
+        getFragmentManager().popBackStack();
+        Utils.closeKeyboard(getActivity());
     }
 
     public Toolbar getToolbar() {
