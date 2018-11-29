@@ -86,6 +86,8 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
         videoModel = getArguments().getParcelable(Statistic.VIDEO_MODEL);
 
+        Flog.e("        "+ videoModel.getPath());
+
         getToolbar().setTitle(getString(R.string.speed));
         getToolbar().getMenu().findItem(R.id.item_save).setOnMenuItemClickListener(menuItem -> dialogLocalSave());
 

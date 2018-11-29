@@ -96,7 +96,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile, Video
             new File(pathNewFile).mkdirs();
         }
 
-        pathNewFile = pathNewFile + fileName + getFileExtension(pathOldFile);
+        pathNewFile = pathNewFile + fileName + getFileExtension(videoModel.getPath());
 
         File f = new File(pathNewFile);
         if (f.exists()) {
@@ -115,14 +115,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile, Video
             return;
         }
 
-
         String command[] = new String[]{"-i", videoModel.getPath(), "-ss", startTime + "", "-t", String.valueOf(durationAudio), "-c", "copy", pathNewFile};
-
-        if (false) {
-            Flog.e("xxx  " + command[0] + "___" + videoModel.getPath() + "___" + startTime + "___");
-            return;
-        }
-
 
         initDialogProgress();
 
@@ -136,6 +129,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile, Video
         String defaultName = "VC_" + simpleDateFormat.format(System.currentTimeMillis());
         dialogInputName = new DialogInputName(getContext(), this, defaultName, getString(R.string.save));
         dialogInputName.initDialog();
+        pauseVideo();
         return true;
     }
 
@@ -158,9 +152,19 @@ public class CutterFragment extends AbsFragment implements IInputNameFile, Video
             }
             videoView.seekTo((int) currentMili);
         });
+
+        if (true) {
+            Flog.e("durrrrr        " + videoTimelineView.getVideoLength() + "___" + videoView.getDuration());
+        }
+
+        if (videoTimelineView.getVideoLength() <= 0) {
+            Toast.makeText(getContext(), getString(R.string.not_support_this_file), Toast.LENGTH_SHORT).show();
+            getActivity().onBackPressed();
+        }
     }
 
     private boolean isPlayToEnd = false;
+    private boolean isFirstTime = false;
 
     private void updateProgress() {
         if (handler == null) {
@@ -172,6 +176,7 @@ public class CutterFragment extends AbsFragment implements IInputNameFile, Video
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
+
                 Flog.e(" posssss     " + videoView.getCurrentPosition() + "___" + (videoTimelineView.getRightProgress() * 100) * videoView.getDuration() / 100);
                 if (videoView.getCurrentPosition() >= (videoTimelineView.getRightProgress() * 100) * videoView.getDuration() / 100) {
                     Flog.e("paissssssssssssssss  ");
@@ -247,7 +252,6 @@ public class CutterFragment extends AbsFragment implements IInputNameFile, Video
     }
 
     private void execFFmpegBinary(final String[] command, String path, String title) {
-        Log.e("xxx", "cccccccccccccc");
         try {
             ffmpeg.execute(command, new ExecuteBinaryResponseHandler() {
                 @Override

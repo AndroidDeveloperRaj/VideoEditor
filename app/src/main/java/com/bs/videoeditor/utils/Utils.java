@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.text.format.DateFormat;
@@ -257,6 +258,10 @@ public class Utils {
         return 0;
     }
 
+    private static String EXTERNAL_STORAGE_PATH = Environment.getExternalStorageDirectory().getPath();
+    private static String PREFIX = "format!=12289  and " + "(_data not like '" + EXTERNAL_STORAGE_PATH + "/Android/%' and " + "_data" + " not like '" + EXTERNAL_STORAGE_PATH + "/.%') and ";
+    public static String FORMAT_VIDEO = PREFIX + "(" + " ( mime_type like 'video/%')  or data like '%.flv' or data like '%.mov' " + ")";
+
     public static List<VideoModel> getVideos(Context context, int sortOrder, String removeSpeedVideos, boolean isGetVideosSpeed) {
 
         String sort = SortOrder.SongSortOrder.SONG_A_Z;
@@ -291,7 +296,8 @@ public class Utils {
                 MediaStore.Video.Media.DATA,
                 MediaStore.Video.Media.RESOLUTION,
                 MediaStore.Video.Media.SIZE,
-                MediaStore.Video.Media.DATE_ADDED
+                MediaStore.Video.Media.DATE_ADDED,
+                MediaStore.Video.Media.MIME_TYPE
 
         };
 
@@ -311,9 +317,15 @@ public class Utils {
                 resolution = c.getString(c.getColumnIndex(MediaStore.Video.Media.RESOLUTION));
                 size = c.getLong(c.getColumnIndex(MediaStore.Video.Media.SIZE));
                 dateAdded = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATE_ADDED));
-                Flog.e(" path       " + path);
+                //Flog.e(" path       " + path + "___" + duration + "       " + c.getString(c.getColumnIndex(MediaStore.Video.Media.MIME_TYPE)));
                 try {
-                    if (duration != null && path != null && Long.parseLong(duration) > 0) {
+                    //String extension = getFileExtension(path);
+                    if (duration != null && path != null && Long.parseLong(duration) > 1000
+                            && !path.contains(".mpg")
+                            && !path.contains(".wmv")
+                            && !path.contains(".webm")
+                            && !path.contains(".flv")
+                            && !path.contains(".mkv")) {
                         VideoModel video = new VideoModel(id, name, artist, album, duration, path, resolution, size, dateAdded + "000");
                         if (isGetVideosSpeed) {
                             listVideo.add(video);
@@ -451,11 +463,16 @@ public class Utils {
     // return
     public static String getFileExtension(String path) {
 
-        int lastIndexOf = path.lastIndexOf(".");
-        if (lastIndexOf == -1) {
-            return ""; // empty extension
+        try {
+            int lastIndexOf = path.lastIndexOf(".");
+            if (lastIndexOf == -1) {
+                return ".mp4"; // empty extension
+            }
+            return "." + path.substring(lastIndexOf + 1);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        return "." + path.substring(lastIndexOf + 1);
+        return ".mp4";
     }
 
 

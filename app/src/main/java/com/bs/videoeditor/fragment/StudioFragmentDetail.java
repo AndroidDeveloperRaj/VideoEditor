@@ -196,13 +196,6 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
     }
 
     private void settingDeleteRecord() {
-        List<VideoModel> videoModels = new ArrayList<>();
-        for (VideoModel videoModel : videoModelList) {
-            if (videoModel.getPath().toLowerCase().equals(videoModel.getPath().toLowerCase())) {
-                videoModels.add(videoModelList.get(indexOption));
-            }
-        }
-
 
         if (mListChecked.size() != 0) {
             for (VideoModel videoModel : mListChecked) {
@@ -230,7 +223,6 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
         listAllVideo.addAll(Utils.getStudioVideos(getContext(), checkCurrentFragment, mSortOrder));
         videoModelList.clear();
         videoModelList.addAll(listAllVideo);
-        videoAdapter.notifyDataSetChanged();
 
         notifiAdapter();
         hideBottomSheetDialog();
@@ -500,7 +492,7 @@ public class StudioFragmentDetail extends AbsFragment implements VideoAdapter.It
 
         currentFile = new File(videoModel.getPath());
 
-        newFile = new File(videoModel.getPath().replace(videoModel.getNameAudio() + Statistic.FORMAT_MP4, "") + nameFile + getFileExtension(videoModel.getPath()));
+        newFile = new File(videoModel.getPath().replace(videoModel.getNameAudio() + getFileExtension(videoModel.getPath()), "") + nameFile + getFileExtension(videoModel.getPath()));
 
         if (newFile.exists()) {
             Toast.makeText(getContext(), getString(R.string.name_file_exist), Toast.LENGTH_SHORT).show();

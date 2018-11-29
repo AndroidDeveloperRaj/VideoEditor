@@ -19,6 +19,7 @@ import com.bs.videoeditor.adapter.LeftListAdapter;
 import com.bs.videoeditor.adapter.RightListAdapter;
 import com.bs.videoeditor.model.VideoModel;
 import com.bs.videoeditor.statistic.Statistic;
+import com.bs.videoeditor.utils.Flog;
 import com.bs.videoeditor.utils.Utils;
 import com.yalantis.multiselection.lib.MultiSelect;
 import com.yalantis.multiselection.lib.MultiSelectBuilder;
@@ -34,6 +35,7 @@ public class DetailsSelectFileFragment extends AbsFragment {
     private Toolbar toolbar;
     private View viewChooseFile;
     private TextView tvNoAudioFile;
+    private List<VideoModel> videoModelListChecked = new ArrayList<>();
 
     public static DetailsSelectFileFragment newInstance() {
         Bundle args = new Bundle();
@@ -52,6 +54,8 @@ public class DetailsSelectFileFragment extends AbsFragment {
 
                         String path = intent.getExtras().getString(Statistic.MODEL);
 
+                        Flog.e("x   items " + mMultiSelect.getSelectedItems().size());
+
                         for (int i = 0; i < leftAdapter.getItems().size(); i++) {
 
                             if (leftAdapter.getItems().get(i).getPath().equals(path)) {
@@ -61,6 +65,7 @@ public class DetailsSelectFileFragment extends AbsFragment {
                                 leftAdapter.removeItemAt(i);
 
                                 rightAdapter.add(videoModel, false);
+
 
                             }
                         }
@@ -113,16 +118,18 @@ public class DetailsSelectFileFragment extends AbsFragment {
 
                 case R.id.item_search:
 
-                    List<VideoModel> audioEntities = Utils.getVideos(getContext(), 0,null,true);
+                    List<VideoModel> videoModels = Utils.getVideos(getContext(), 0, null, true);
+
+                    Flog.e("x   items " + mMultiSelect.getSelectedItems().size());
 
                     if (mMultiSelect.getSelectedItems().size() > 0) {
 
                         videoModelListChecked = mMultiSelect.getSelectedItems();
 
                         for (VideoModel videoModel : videoModelListChecked) {
-                            for (VideoModel videoModel1 : audioEntities) {
+                            for (VideoModel videoModel1 : videoModels) {
                                 if (videoModel.getPath().equals(videoModel1.getPath())) {
-                                    audioEntities.remove(videoModel1);
+                                    videoModels.remove(videoModel1);
                                     break;
                                 }
                             }
@@ -130,14 +137,14 @@ public class DetailsSelectFileFragment extends AbsFragment {
                     }
 
                     Bundle bundle = new Bundle();
-                    bundle.putParcelableArrayList(Statistic.LIST_VIDEO, (ArrayList<? extends Parcelable>) audioEntities);
+                    bundle.putParcelableArrayList(Statistic.LIST_VIDEO, (ArrayList<? extends Parcelable>) videoModels);
 
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .setCustomAnimations(R.anim.animation_left_to_right
                                     , R.anim.animation_right_to_left
                                     , R.anim.animation_left_to_right
                                     , R.anim.animation_right_to_left)
-                            .replace(R.id.view_container, SearchFragment.newInstance(bundle))
+                            .add(R.id.view_container, SearchFragment.newInstance(bundle))
                             .addToBackStack(null)
                             .commit();
 
@@ -148,7 +155,6 @@ public class DetailsSelectFileFragment extends AbsFragment {
         });
     }
 
-    private List<VideoModel> videoModelListChecked = new ArrayList<>();
 
     public boolean checkSelectFile() {
         videoModelListChecked = mMultiSelect.getSelectedItems();
@@ -159,7 +165,7 @@ public class DetailsSelectFileFragment extends AbsFragment {
 
     private void setUpAdapters(MultiSelectBuilder<VideoModel> builder) {
 
-        leftListAudio = Utils.getVideos(getContext(), 0,null,true);
+        leftListAudio = Utils.getVideos(getContext(), 0, null, true);
         leftAdapter = new LeftListAdapter(getContext(), position -> mMultiSelect.select(position));
         rightAdapter = new RightListAdapter(getContext(), position -> mMultiSelect.deselect(position));
         leftAdapter.addAll(leftListAudio);
@@ -200,8 +206,6 @@ public class DetailsSelectFileFragment extends AbsFragment {
 
     @Override
     public void onDestroy() {
-
-
         getContext().unregisterReceiver(receiver);
         super.onDestroy();
     }

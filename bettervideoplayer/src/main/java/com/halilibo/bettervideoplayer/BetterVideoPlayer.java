@@ -1060,10 +1060,15 @@ public class BetterVideoPlayer extends RelativeLayout implements IUserMethods,
         mTextureView.setTransform(txform);
     }
 
+    private boolean isFirst = false;
+
     private void throwError(Exception e) {
-        if (mCallback != null)
-            mCallback.onError(this, e);
-        else throw new RuntimeException(e);
+        if (!isFirst) {
+            isFirst = true;
+            if (mCallback != null)
+                mCallback.onError(this, e);
+            else throw new RuntimeException(e);
+        }
     }
 
     public void setLoop(boolean loop) {

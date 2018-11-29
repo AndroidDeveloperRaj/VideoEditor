@@ -57,7 +57,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         VideoModel videoModel = videoModelList.get(position);
         holder.tvName.setText(videoModel.getNameAudio());
-        holder.tvTime.setText(Utils.getStringSizeLengthFile(videoModel.getSize()));
+        holder.tvTime.setText(Utils.getStringSizeLengthFile(videoModel.getSize()) + "     " + Utils.convertMillisecond(Long.parseLong(videoModel.getDuration())));
         Glide.with(context).load(Uri.fromFile(new File(videoModel.getPath()))).into(holder.ivThumb);
 
         if (isStudio) {

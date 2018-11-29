@@ -348,7 +348,10 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
 
                     Toast.makeText(getContext(), getString(R.string.create_file) + path, Toast.LENGTH_SHORT).show();
 
-                    progressDialog.setProgress(100);
+                    if (progressDialog != null) {
+                        progressDialog.setProgress(100);
+                        progressDialog.dismiss();
+                    }
 
                     if (isPauseFragment()) {
                         return;

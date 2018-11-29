@@ -192,6 +192,8 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
             @Override
             public void onError(BetterVideoPlayer player, Exception e) {
                 Flog.e("Error " + e.getMessage());
+                Toast.makeText(getContext(), getString(R.string.not_support_this_file), Toast.LENGTH_SHORT).show();
+                getActivity().onBackPressed();
             }
 
             @Override

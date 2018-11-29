@@ -16,7 +16,9 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bs.videoeditor.R;
 import com.bs.videoeditor.activity.MainActivity;
@@ -27,6 +29,7 @@ import com.bs.videoeditor.utils.Flog;
 import com.bs.videoeditor.utils.SharedPrefs;
 import com.bs.videoeditor.utils.SortOrder;
 import com.bs.videoeditor.utils.Utils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,9 +49,11 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     private boolean isGetVideosSpeed = true;
     private MenuItem listMenu[];
     private int mCheckAction = 0; // action is check this fragment choose video is fragment cutter == 0,addmusic == 2,speed ==1
+    private ProgressBar progressBar;
+    private SearchView searchView;
+    private int mSortOrderId = ID_SONG_DATE_ADDED_DESCENDING;
 
     public static ListVideoFragment newInstance(Bundle bundle) {
-        Bundle args = new Bundle();
         ListVideoFragment fragment = new ListVideoFragment();
         fragment.setArguments(bundle);
         return fragment;
@@ -60,22 +65,16 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
         videoModelList = new ArrayList<>();
         videoAdapter = new VideoAdapter(videoModelList, this, getContext(), false);
 
+        progressBar = (ProgressBar) findViewById(R.id.progressbar);
         tvNoVideo = (TextView) findViewById(R.id.tv_no_video);
         rvVideo = (RecyclerView) findViewById(R.id.recycle_view);
         rvVideo.setHasFixedSize(true);
         rvVideo.setLayoutManager(new LinearLayoutManager(getContext()));
         rvVideo.setAdapter(videoAdapter);
 
-    }
-
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         loadVideo();
-    }
 
-    private SearchView searchView;
+    }
 
     private void searchAudio(Toolbar toolbar) {
         MenuItem menuItem = toolbar.getMenu().findItem(R.id.item_search);
@@ -120,7 +119,8 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
 
         getToolbar().setTitle(listTitle[mCheckAction]);
         getToolbar().getMenu().clear();
-        getToolbar().inflateMenu(R.menu.menu_search1);;
+        getToolbar().inflateMenu(R.menu.menu_search1);
+
         searchAudio(getToolbar());
 
         setUpSortOrderMenu();
@@ -148,7 +148,10 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     }
 
     private boolean saveIdSortOrder(int id, @NonNull MenuItem menuItem) {
+
         mSortOrderId = id;
+        progressBar.setVisibility(View.VISIBLE);
+
         loadVideo();
         menuItem.setChecked(true);
         SharedPrefs.getInstance().put(Statistic.SORT_ORDER_CURRENT_CHOOSE_VIDEO, id);
@@ -156,16 +159,14 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     }
 
     private void isHasVideo() {
-        if (videoModelList.size() == 0) {
-            tvNoVideo.setVisibility(View.VISIBLE);
-        }
-
+        if (videoModelList.size() == 0) tvNoVideo.setVisibility(View.VISIBLE);
         tvNoVideo.setVisibility(View.GONE);
     }
 
-    private int mSortOrderId = ID_SONG_DATE_ADDED_DESCENDING;
-
     private void loadVideo() {
+
+        progressBar.setVisibility(View.VISIBLE);
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -179,6 +180,7 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+                progressBar.setVisibility(View.GONE);
                 isHasVideo();
                 videoAdapter.notifyDataSetChanged();
             }
@@ -194,11 +196,20 @@ public class ListVideoFragment extends AbsFragment implements VideoAdapter.ItemS
     @Override
     public void onClick(int index) {
 
-        addFragment(mCheckAction, index);
-
         if (searchView != null) {
             searchView.clearFocus();
         }
+
+        if (mCheckAction == MainActivity.INDEX_SPEED) {
+            if (videoModelList.get(index).getPath().contains(".mkv")
+                    || videoModelList.get(index).getPath().contains(".avi")) {
+                Toast.makeText(getContext(), getString(R.string.not_support_this_file), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        addFragment(mCheckAction, index);
+
     }
 
     @Override
