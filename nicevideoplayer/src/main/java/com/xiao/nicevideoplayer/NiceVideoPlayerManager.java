@@ -28,6 +28,7 @@ public class NiceVideoPlayerManager {
         if (mVideoPlayer != videoPlayer) {
             releaseNiceVideoPlayer();
             mVideoPlayer = videoPlayer;
+
         }
     }
 

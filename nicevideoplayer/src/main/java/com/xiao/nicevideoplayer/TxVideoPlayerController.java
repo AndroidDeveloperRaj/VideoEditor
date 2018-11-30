@@ -152,6 +152,7 @@ public class TxVideoPlayerController
         mShare.setOnClickListener(this);
         mSeek.setOnSeekBarChangeListener(this);
         this.setOnClickListener(this);
+        findViewById(R.id.viewSeekbar).setOnClickListener(this);
     }
 
     @Override
@@ -494,7 +495,7 @@ public class TxVideoPlayerController
         long position = mNiceVideoPlayer.getCurrentPosition();
         long duration = mNiceVideoPlayer.getDuration();
         int bufferPercentage = mNiceVideoPlayer.getBufferPercentage();
-        mSeek.setSecondaryProgress(bufferPercentage);
+        mSeek.setSecondaryProgress(100);
         int progress = (int) (100f * position / duration);
         mSeek.setProgress(progress);
 

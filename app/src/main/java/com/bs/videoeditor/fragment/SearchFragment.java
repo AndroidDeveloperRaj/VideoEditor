@@ -82,7 +82,7 @@ public class SearchFragment extends AbsFragment implements VideoAdapter.ItemSele
         searchView.setOnQueryTextListener(new android.support.v7.widget.SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-               // actionSearch(s);
+                // actionSearch(s);
                 return true;
             }
 
@@ -120,8 +120,6 @@ public class SearchFragment extends AbsFragment implements VideoAdapter.ItemSele
         if (searchView != null) {
             searchView.clearFocus();
         }
-
-        Log.e("xxx", "vxcvx " + videoModel.getPath());
 
         getContext().sendBroadcast(new Intent(Statistic.UPDATE_CHOOSE_VIDEO).putExtra(Statistic.MODEL, videoModel.getPath()));
 

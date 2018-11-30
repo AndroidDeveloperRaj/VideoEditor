@@ -81,6 +81,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     private TextView tvNoAudio;
     private List<MusicModel> listAllSong = new ArrayList<>();
     private View viewPlay;
+    private boolean isMaxRangerSeekbar = false;
 
     public static ChooseMusicFragment newInstance() {
         Bundle args = new Bundle();
@@ -139,9 +140,10 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
     public void initToolbar() {
         super.initToolbar();
         getToolbar().getMenu().clear();
-        getToolbar().inflateMenu(R.menu.menu_select_multi_song);
+        getToolbar().inflateMenu(R.menu.menu_search_song);
         getToolbar().getMenu().findItem(R.id.item_done).setOnMenuItemClickListener(menuItem -> addMusic());
         searchAudio(getToolbar());
+
     }
 
     private void searchAudio(Toolbar toolbar) {
@@ -171,7 +173,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
         if (isExistSong()) {
             onSave();
         } else {
-            getActivity().onBackPressed();
+            getFragmentManager().popBackStack();
         }
         return true;
     }
@@ -329,8 +331,6 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
         }, 1000);
     }
 
-    private boolean isMaxRangerSeekbar = false;
-
     private void stopMedia() {
 
         STATE_PLAY_MUSIC = STATE_STOP;
@@ -353,8 +353,14 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
         return inflater.inflate(R.layout.fragment_choose_music, container, false);
     }
 
+    private String pathOldFile;
+
     @Override
     public void onClick(int position) {
+
+        this.position = position;
+
+        pathOldFile = musicModelList.get(position).getFilePath();
 
         STATE_PLAY_MUSIC = STATE_STOP;
 
@@ -401,7 +407,7 @@ public class ChooseMusicFragment extends AbsFragment implements MusicAdapter.Ite
         durationAudio = (timeEnd - timeStart);
         if (durationAudio > 0) {
             String command[];
-            if (musicModelList.get(position).getFilePath().contains(".aac") || musicModelList.get(position).getFilePath().contains(".wav") || musicModelList.get(position).getFilePath().contains(".m4a")) {
+            if (pathOldFile.contains(".aac") || pathOldFile.contains(".wav") || pathOldFile.contains(".m4a")) {
                 command = new String[]{"-i", musicModelList.get(position).getFilePath(), "-ss", timeStart + "", "-t", String.valueOf(durationAudio), outPath};
             } else {
                 command = new String[]{"-i", musicModelList.get(position).getFilePath(), "-ss", timeStart + "", "-t", String.valueOf(durationAudio), "-map", "0:a", "-c", "copy", outPath};

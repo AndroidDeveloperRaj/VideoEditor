@@ -317,7 +317,7 @@ public class Utils {
                 resolution = c.getString(c.getColumnIndex(MediaStore.Video.Media.RESOLUTION));
                 size = c.getLong(c.getColumnIndex(MediaStore.Video.Media.SIZE));
                 dateAdded = c.getString(c.getColumnIndex(MediaStore.Video.Media.DATE_ADDED));
-                //Flog.e(" path       " + path + "___" + duration + "       " + c.getString(c.getColumnIndex(MediaStore.Video.Media.MIME_TYPE)));
+                Flog.e(" path       " + path + "___" + duration + "       " + c.getString(c.getColumnIndex(MediaStore.Video.Media.MIME_TYPE)));
                 try {
                     //String extension = getFileExtension(path);
                     if (duration != null && path != null && Long.parseLong(duration) > 1000

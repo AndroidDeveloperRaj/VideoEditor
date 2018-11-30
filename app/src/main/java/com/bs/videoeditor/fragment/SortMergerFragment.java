@@ -281,17 +281,13 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
     private DialogInputName dialogInputName;
 
     private boolean dialogSelectLocalSaveFile() {
-
-
         if (videoModelList.size() >= 2) {
-
             String nameDefault = "VM_" + simpleDateFormat.format(System.currentTimeMillis());
             dialogInputName = new DialogInputName(getContext(), this, nameDefault, getString(R.string.save));
             dialogInputName.initDialog();
 
         } else {
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.AppCompatAlertDialogStyle);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle(getResources().getString(R.string.error));
             builder.setMessage(getString(R.string.you_need_to_have));
             builder.setPositiveButton(getResources().getString(R.string.lib_crs_yes), (dialog, id) -> {
@@ -301,7 +297,6 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
             builder.setNegativeButton(getResources().getString(R.string.lib_crs_no), (dialog, id) -> dialog.dismiss());
             AlertDialog dialog = builder.create();
             dialog.show();
-
         }
 
         return true;
@@ -335,14 +330,7 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
 
                     Flog.e("Success " + s);
 
-                    Flog.e("Success finish ");
-                    if (isCancelSaveFile) {
-                        return;
-                    }
-
-                    if (isError) {
-                        return;
-                    }
+                    if (isCancelSaveFile) return;
 
                     FileUtil.addFileToContentProvider(getContext(), path, title);
 
@@ -353,13 +341,9 @@ public class SortMergerFragment extends AbsFragment implements IListSongChanged,
                         progressDialog.dismiss();
                     }
 
-                    if (isPauseFragment()) {
-                        return;
-                    }
+                    if (isPauseFragment()) return;
 
-                    if (getFragmentManager() == null) {
-                        return;
-                    }
+                    if (getFragmentManager() == null) return;
 
                     Utils.clearFragment(getFragmentManager());
 

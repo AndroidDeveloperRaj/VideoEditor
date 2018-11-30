@@ -2,11 +2,13 @@ package com.xiao.nicevideoplayer;
 
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Surface;
 import android.view.TextureView;
@@ -371,10 +373,10 @@ public class NiceVideoPlayer extends FrameLayout
                 case TYPE_IJK:
                 default:
                     mMediaPlayer = new IjkMediaPlayer();
-//                    ((IjkMediaPlayer)mMediaPlayer).setOption(1, "analyzemaxduration", 100L);
-//                    ((IjkMediaPlayer)mMediaPlayer).setOption(1, "probesize", 10240L);
-//                    ((IjkMediaPlayer)mMediaPlayer).setOption(1, "flush_packets", 1L);
-//                    ((IjkMediaPlayer)mMediaPlayer).setOption(4, "packet-buffering", 0L);
+                    //((IjkMediaPlayer)mMediaPlayer).setOption(1, "analyzemaxduration", 100L);
+                    //((IjkMediaPlayer)mMediaPlayer).setOption(1, "probesize", 10240L);
+                    //((IjkMediaPlayer)mMediaPlayer).setOption(1, "flush_packets", 1L);
+                    //((IjkMediaPlayer) mMediaPlayer).setOption(4, "packet-buffering", 0L);
 //                    ((IjkMediaPlayer)mMediaPlayer).setOption(4, "framedrop", 1L);
                     break;
             }
@@ -431,7 +433,8 @@ public class NiceVideoPlayer extends FrameLayout
             LogUtil.d("STATE_PREPARING");
         } catch (IOException e) {
             e.printStackTrace();
-            LogUtil.e("打开播放器发生错误", e);
+
+            Log.e("mylol", "ccccccccccccc");
         }
     }
 
@@ -454,8 +457,9 @@ public class NiceVideoPlayer extends FrameLayout
         public void onPrepared(IMediaPlayer mp) {
             mCurrentState = STATE_PREPARED;
             mController.onPlayStateChanged(mCurrentState);
-            LogUtil.d("onPrepared ——> STATE_PREPARED");
+            Log.e(TAG, "onPrepared ——> STATE_PREPARED");
             mp.start();
+
             // 从上次的保存位置播放
             if (continueFromLastPosition) {
                 long savedPlayPosition = NiceUtil.getSavedPlayPosition(mContext, mUrl);
@@ -473,7 +477,7 @@ public class NiceVideoPlayer extends FrameLayout
         @Override
         public void onVideoSizeChanged(IMediaPlayer mp, int width, int height, int sar_num, int sar_den) {
             mTextureView.adaptVideoSize(width, height);
-            LogUtil.d("onVideoSizeChanged ——> width：" + width + "， height：" + height);
+            Log.e(TAG, "onVideoSizeChanged ——> width：" + width + "， height：" + height);
         }
     };
 
@@ -483,12 +487,13 @@ public class NiceVideoPlayer extends FrameLayout
         public void onCompletion(IMediaPlayer mp) {
             mCurrentState = STATE_COMPLETED;
             mController.onPlayStateChanged(mCurrentState);
-            LogUtil.d("onCompletion ——> STATE_COMPLETED");
+            Log.e(TAG, "onCompletion ——> STATE_COMPLETED");
             // 清除屏幕常亮
             mContainer.setKeepScreenOn(false);
         }
     };
-
+    private static final String TAG = "videoeditor";
+    private boolean isPlaySuccess = false;
     private IMediaPlayer.OnErrorListener mOnErrorListener
             = new IMediaPlayer.OnErrorListener() {
         @Override
@@ -497,11 +502,19 @@ public class NiceVideoPlayer extends FrameLayout
             if (what != -38 && what != -2147483648 && extra != -38 && extra != -2147483648) {
                 mCurrentState = STATE_ERROR;
                 mController.onPlayStateChanged(mCurrentState);
-                LogUtil.d("onError ——> STATE_ERROR ———— what：" + what + ", extra: " + extra);
+                Log.e(TAG, "onError ——> STATE_ERROR ———— what：" + what + ", extra: " + extra);
             }
             return true;
         }
     };
+
+    public void setStatePlaySuccess(boolean isPlay) {
+        this.isPlaySuccess = isPlay;
+    }
+
+    public boolean isPlaySuccess() {
+        return isPlaySuccess;
+    }
 
     private IMediaPlayer.OnInfoListener mOnInfoListener
             = new IMediaPlayer.OnInfoListener() {
@@ -516,10 +529,10 @@ public class NiceVideoPlayer extends FrameLayout
                 // MediaPlayer暂时不播放，以缓冲更多的数据
                 if (mCurrentState == STATE_PAUSED || mCurrentState == STATE_BUFFERING_PAUSED) {
                     mCurrentState = STATE_BUFFERING_PAUSED;
-                    LogUtil.d("onInfo ——> MEDIA_INFO_BUFFERING_START：STATE_BUFFERING_PAUSED");
+                    Log.e(TAG, "onInfo ——> MEDIA_INFO_BUFFERING_START：STATE_BUFFERING_PAUSED");
                 } else {
                     mCurrentState = STATE_BUFFERING_PLAYING;
-                    LogUtil.d("onInfo ——> MEDIA_INFO_BUFFERING_START：STATE_BUFFERING_PLAYING");
+                    Log.e(TAG, "onInfo ——> MEDIA_INFO_BUFFERING_START：STATE_BUFFERING_PLAYING");
                 }
                 mController.onPlayStateChanged(mCurrentState);
             } else if (what == IMediaPlayer.MEDIA_INFO_BUFFERING_END) {
@@ -527,23 +540,26 @@ public class NiceVideoPlayer extends FrameLayout
                 if (mCurrentState == STATE_BUFFERING_PLAYING) {
                     mCurrentState = STATE_PLAYING;
                     mController.onPlayStateChanged(mCurrentState);
-                    LogUtil.d("onInfo ——> MEDIA_INFO_BUFFERING_END： STATE_PLAYING");
+                    Log.e(TAG, "onInfo ——> MEDIA_INFO_BUFFERING_END： STATE_PLAYING");
                 }
                 if (mCurrentState == STATE_BUFFERING_PAUSED) {
                     mCurrentState = STATE_PAUSED;
                     mController.onPlayStateChanged(mCurrentState);
-                    LogUtil.d("onInfo ——> MEDIA_INFO_BUFFERING_END： STATE_PAUSED");
+                    Log.e(TAG, "onInfo ——> MEDIA_INFO_BUFFERING_END： STATE_PAUSED");
                 }
             } else if (what == IMediaPlayer.MEDIA_INFO_VIDEO_ROTATION_CHANGED) {
                 // 视频旋转了extra度，需要恢复
                 if (mTextureView != null) {
                     mTextureView.setRotation(extra);
-                    LogUtil.d("视频旋转角度：" + extra);
+                    isPlaySuccess = true;
+                    Log.e(TAG, "BIN1：" + extra);
+                } else {
+                    Log.e(TAG, "BIN");
                 }
             } else if (what == IMediaPlayer.MEDIA_INFO_NOT_SEEKABLE) {
-                LogUtil.d("视频不能seekTo，为直播视频");
+                Log.e(TAG, "视频不能seekTo，为直播视频");
             } else {
-                LogUtil.d("onInfo ——> what：" + what);
+                Log.e(TAG, "onInfo ——> what：" + what);
             }
             return true;
         }

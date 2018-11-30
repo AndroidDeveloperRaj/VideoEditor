@@ -6,6 +6,7 @@ import android.support.annotation.IdRes;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.bs.videoeditor.R;
 import com.bs.videoeditor.utils.Utils;
@@ -62,7 +63,13 @@ public abstract class AbsFragment extends Fragment {
     }
 
     private void onBack() {
+//        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+//        if (imm != null && imm.is()) {
+//            Utils.closeKeyboard(getActivity());
+//        }else {
         getFragmentManager().popBackStack();
+//        }
+
         Utils.closeKeyboard(getActivity());
     }
 

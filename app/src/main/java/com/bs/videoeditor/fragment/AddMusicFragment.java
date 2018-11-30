@@ -333,6 +333,8 @@ public class AddMusicFragment extends AbsFragment implements View.OnClickListene
 
             return true;
         });
+
+
     }
 
     private void initDialogSaveFile() {

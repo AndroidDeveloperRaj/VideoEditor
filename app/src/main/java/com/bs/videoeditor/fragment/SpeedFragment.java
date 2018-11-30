@@ -4,9 +4,12 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.Image;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -15,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -32,6 +36,7 @@ import com.github.hiteshsondhi88.libffmpeg.exceptions.FFmpegCommandAlreadyRunnin
 import com.halilibo.bettervideoplayer.BetterVideoCallback;
 import com.halilibo.bettervideoplayer.BetterVideoPlayer;
 import com.xiao.nicevideoplayer.NiceVideoPlayer;
+import com.xiao.nicevideoplayer.NiceVideoPlayerManager;
 import com.xiao.nicevideoplayer.TxVideoPlayerController;
 import com.xw.repo.BubbleSeekBar;
 
@@ -86,7 +91,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
         videoModel = getArguments().getParcelable(Statistic.VIDEO_MODEL);
 
-        Flog.e("        "+ videoModel.getPath());
+        Flog.e("        " + videoModel.getPath());
 
         getToolbar().setTitle(getString(R.string.speed));
         getToolbar().getMenu().findItem(R.id.item_save).setOnMenuItemClickListener(menuItem -> dialogLocalSave());
@@ -101,6 +106,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
     }
 
     private void pauseVideo() {
+        if (mNiceVideoPlayer == null) return;
         if (mNiceVideoPlayer.isPlaying()) {
             mNiceVideoPlayer.pause();
         }
@@ -144,6 +150,15 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
         mNiceVideoPlayer.setController(controller);
         mNiceVideoPlayer.continueFromLastPosition(true);
         mNiceVideoPlayer.start();
+
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            if (!mNiceVideoPlayer.isPlaySuccess()) {
+                Toast.makeText(getContext(), getString(R.string.not_support_this_file), Toast.LENGTH_SHORT).show();
+                NiceVideoPlayerManager.instance().releaseNiceVideoPlayer();
+                getFragmentManager().popBackStack();
+            }
+        }, 500);
     }
 
     @Override
@@ -288,9 +303,7 @@ public class SpeedFragment extends AbsFragment implements IInputNameFile, com.bs
 
     @Override
     public void onDestroy() {
-        if (mNiceVideoPlayer != null) {
-
-        }
+        NiceVideoPlayerManager.instance().releaseNiceVideoPlayer();
         super.onDestroy();
     }
 

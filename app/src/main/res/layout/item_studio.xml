@@ -112,6 +112,7 @@
                 android:src="@drawable/ic_more_vert_black_24dp" />
 
             <CheckBox
+                android:theme="@style/MyCheckBox"
                 android:id="@+id/checkbox"
                 android:layout_width="@dimen/_24sdp"
                 android:layout_height="@dimen/_24sdp"

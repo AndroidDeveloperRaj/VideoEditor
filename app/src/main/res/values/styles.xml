@@ -13,6 +13,15 @@
         <item name="actionModeCloseDrawable">@drawable/ic_back</item>
     </style>
 
+    <style name="MyCheckBox" parent="Theme.AppCompat.Light">
+
+        <item name="colorControlNormal">@color/colorAccent</item>
+
+        <item name="colorControlActivated">@color/colorAccent</item>
+
+    </style>
+
+
     <declare-styleable name="RangeSeekBar">
         <!-- the minimum of the range -->
         <attr name="absoluteMinValue" format="integer|float" />

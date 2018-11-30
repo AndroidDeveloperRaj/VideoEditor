@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -17,6 +18,8 @@ import com.bs.videoeditor.fragment.DetailsSelectFileFragment;
 import com.bs.videoeditor.fragment.ListVideoFragment;
 import com.bs.videoeditor.fragment.StudioFragment;
 import com.bs.videoeditor.statistic.Statistic;
+import com.bs.videoeditor.utils.Flog;
+import com.bs.videoeditor.utils.Utils;
 import com.bsoft.core.AdmobBannerHelper;
 import com.bsoft.core.AdmobFullHelper;
 import com.bsoft.core.AdmobNativeHelper;
@@ -139,15 +142,16 @@ public class MainActivity extends AbsActivity {
 
     @Override
     public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStack();
-        } else {
-            if (AppRate.showRateDialogIfMeetsConditions(this)) {
-
+            Flog.e("baccccfffffffffffffffcccccccc");
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStack();
             } else {
-                dialogExitApp.show();
+                if (AppRate.showRateDialogIfMeetsConditions(this)) {
+
+                } else {
+                    dialogExitApp.show();
+                }
             }
-        }
     }
 
     private void loadAdsNative() {
@@ -171,11 +175,6 @@ public class MainActivity extends AbsActivity {
             }
         });
     }
-
-//    @Override
-//    public int setView() {
-//        return R.layout.activity_main;
-//    }
 
     private void initView() {
         ivBg = findViewById(R.id.iv_bg);

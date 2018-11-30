@@ -7,7 +7,6 @@
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
         android:scaleType="fitXY"
         android:visibility="gone" />
     <!--加载动画-->
@@ -33,7 +32,7 @@
             android:textColor="@android:color/white"
             android:textSize="13sp" />
     </LinearLayout>
-    <!--改变播放位置-->
+    <!--position-->
     <LinearLayout
         android:id="@+id/change_position"
         android:layout_width="wrap_content"
@@ -63,7 +62,7 @@
             android:max="100"
             android:progressDrawable="@drawable/pb_change" />
     </LinearLayout>
-    <!--改变亮度-->
+    <!--brightness-->
     <LinearLayout
         android:id="@+id/change_brightness"
         android:layout_width="wrap_content"
@@ -91,7 +90,7 @@
             android:progressDrawable="@drawable/pb_change" />
 
     </LinearLayout>
-    <!--改变声音-->
+    <!--volume-->
     <LinearLayout
         android:id="@+id/change_volume"
         android:layout_width="wrap_content"
@@ -236,7 +235,7 @@
                 android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
-    <!--底部控制区-->
+    <!--bottom-->
     <LinearLayout
         android:id="@+id/bottom"
         android:layout_width="match_parent"
@@ -277,17 +276,24 @@
             android:textColor="@android:color/white"
             android:textSize="12sp" />
 
-        <SeekBar
-            android:id="@+id/seek"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
+        <LinearLayout
+            android:id="@+id/viewSeekbar"
             android:layout_weight="1"
-            android:background="@null"
-            android:max="100"
-            android:maxHeight="1.5dp"
-            android:minHeight="1.5dp"
-            android:progressDrawable="@drawable/seek_progress" />
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+            <SeekBar
+                android:id="@+id/seek"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:background="@null"
+                android:max="100"
+                android:maxHeight="1.5dp"
+                android:minHeight="1.5dp"
+                android:progressDrawable="@drawable/seek_progress" />
+        </LinearLayout>
+
+
 
         <TextView
             android:id="@+id/clarity"
